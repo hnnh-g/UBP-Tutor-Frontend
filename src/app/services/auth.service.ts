@@ -23,11 +23,6 @@ export class AuthService {
       return;
     }
 
-    if (environment.useMockAuth) {
-      await this.initMockAuth();
-      return;
-    }
-
     try {
       const Keycloak = (await import('keycloak-js')).default;
       this.keycloak = new Keycloak({
@@ -57,17 +52,6 @@ export class AuthService {
     }
   }
 
-  private async initMockAuth(): Promise<void> {
-    const stored = sessionStorage.getItem('mock_auth');
-    if (stored) {
-      const user = JSON.parse(stored) as User;
-      this.currentUser.set(user);
-      this.isAuthenticated.set(true);
-    }
-    this.isLoading.set(false);
-    this.isInitialized.set(true);
-  }
-
   private async loadUserProfile(): Promise<void> {
     if (!this.keycloak) return;
     try {
@@ -86,17 +70,16 @@ export class AuthService {
     }
   }
 
-  private extractRoles(): Role[] {
-    if (!this.keycloak?.tokenParsed) return ['student'];
+  public extractRoles(): Role[] {
     const tokenParsed = this.keycloak.tokenParsed as Record<string, any>;
     const realmRoles: string[] = tokenParsed['realm_access']?.roles ?? [];
     const clientRoles: string[] =
       tokenParsed['resource_access']?.[environment.keycloak.clientId]?.roles ?? [];
     const all = [...realmRoles, ...clientRoles];
     const roles: Role[] = [];
-    if (all.includes('admin')) roles.push('admin');
-    if (all.includes('teacher')) roles.push('teacher');
-    if (all.includes('student') || roles.length === 0) roles.push('student');
+    if (all.includes('ADMIN')) roles.push('ADMIN');
+    if (all.includes('TEACHER')) roles.push('TEACHER');
+    if (all.includes('STUDENT')) roles.push('STUDENT');
     return roles;
   }
 
@@ -142,6 +125,6 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
-    return this.hasRole('admin');
+    return this.hasRole('ADMIN');
   }
 }

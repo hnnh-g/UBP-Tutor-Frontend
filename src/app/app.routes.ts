@@ -1,6 +1,5 @@
 import { ResolveStart, Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
-import { adminGuard } from './guards/admin.guard';
 import { Roles } from './types/roles';
 
 export const routes: Routes = [

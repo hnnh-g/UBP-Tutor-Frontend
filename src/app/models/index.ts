@@ -1,4 +1,4 @@
-export type Role = 'student' | 'teacher' | 'admin';
+export type Role = 'STUDENT' | 'TEACHER' | 'ADMIN';
 export type Language = 'de' | 'en';
 export type TaskType = 'generation' | 'evaluation' | 'question' | 'summary' | 'QAgeneration';
 export type DiagramType = 'uml' | 'bpmn' | 'petri-net';
