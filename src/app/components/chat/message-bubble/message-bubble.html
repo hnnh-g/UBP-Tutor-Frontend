@@ -4,14 +4,14 @@
   <div
     class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1"
     [class.bg-brand-600]="isUser"
-    [class.bg-slate-200]="!isUser"
+    [class.bg-brand-100]="!isUser"
   >
     @if (isUser) {
       <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
         <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
       </svg>
     } @else {
-      <span class="text-slate-600 text-xs font-bold">{{ taskIcon }}</span>
+      <span class="text-brand-600 text-xs font-bold">{{ taskIcon }}</span>
     }
   </div>
 
@@ -24,11 +24,11 @@
       [class.bg-brand-600]="isUser"
       [class.text-white]="isUser"
       [class.rounded-tr-sm]="isUser"
-      [class.bg-white]="!isUser"
-      [class.text-slate-800]="!isUser"
+      [class.bg-brand-50]="!isUser"
+      [class.text-neutral-900]="!isUser"
       [class.shadow-sm]="!isUser"
       [class.border]="!isUser"
-      [class.border-slate-200]="!isUser"
+      [class.border-brand-200]="!isUser"
       [class.rounded-tl-sm]="!isUser"
     >
       @if (!isUser && message.isStreaming && !message.content) {
@@ -49,6 +49,6 @@
     </div>
 
     <!-- Time -->
-    <span class="text-xs text-slate-400 px-1">{{ formattedTime }}</span>
+    <span class="text-xs text-neutral-400 px-1">{{ formattedTime }}</span>
   </div>
 </div>

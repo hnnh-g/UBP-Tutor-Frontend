@@ -48,11 +48,11 @@
   }
 
   .card {
-    @apply bg-white rounded-xl border border-neutral-200 shadow-sm;
+    @apply bg-brand-50 rounded-xl border border-brand-200 shadow-sm;
   }
 
   .sidebar-link {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-700 text-sm font-medium
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-brand-100 text-sm font-medium
       hover:bg-brand-600 hover:text-white transition-colors duration-150 cursor-pointer;
 
     &.active {
@@ -78,6 +78,72 @@
     &-amber {
       @apply bg-amber-100 text-amber-700;
     }
+  }
+}
+
+@layer utilities {
+  .bg-slate-50 {
+    background-color: theme('colors.brand.50') !important;
+  }
+
+  .bg-slate-100 {
+    background-color: theme('colors.brand.100') !important;
+  }
+
+  .bg-slate-200 {
+    background-color: theme('colors.brand.200') !important;
+  }
+
+  .bg-slate-300 {
+    background-color: theme('colors.brand.200') !important;
+  }
+
+  .bg-slate-800 {
+    background-color: theme('colors.brand.800') !important;
+  }
+
+  .bg-slate-900 {
+    background-color: theme('colors.brand.900') !important;
+  }
+
+  .text-slate-800 {
+    color: theme('colors.neutral.900') !important;
+  }
+
+  .text-slate-700 {
+    color: theme('colors.neutral.900') !important;
+  }
+
+  .text-slate-600,
+  .text-slate-500,
+  .text-slate-400,
+  .text-slate-300 {
+    color: theme('colors.neutral.400') !important;
+  }
+
+  .border-slate-200 {
+    border-color: theme('colors.brand.200') !important;
+  }
+
+  .border-slate-100 {
+    border-color: theme('colors.brand.100') !important;
+  }
+
+  .border-slate-700 {
+    border-color: theme('colors.brand.700') !important;
+  }
+
+  .hover\:bg-slate-100:hover,
+  .hover\:bg-slate-50:hover {
+    background-color: theme('colors.brand.50') !important;
+  }
+
+  .hover\:bg-slate-200:hover {
+    background-color: theme('colors.brand.100') !important;
+  }
+
+  .hover\:bg-slate-700:hover {
+    background-color: theme('colors.brand.700') !important;
   }
 }
 
