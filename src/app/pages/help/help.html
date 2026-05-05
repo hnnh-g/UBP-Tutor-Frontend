@@ -1,0 +1,183 @@
+<div class="min-h-screen bg-slate-50">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      @if (auth.isAuthenticated()) {
+        <a routerLink="/tutor" class="btn-ghost text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Back
+        </a>
+      } @else {
+        <a routerLink="/" class="btn-ghost text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Home
+        </a>
+      }
+      <div class="w-px h-5 bg-slate-200"></div>
+      <h1 class="text-lg font-semibold text-slate-800">{{ translation.t().help.title }}</h1>
+    </div>
+    <button
+      (click)="translation.toggle()"
+      class="text-xs font-medium text-slate-500 hover:text-slate-700 uppercase px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors"
+    >
+      {{ translation.language() }}
+    </button>
+  </header>
+
+  <div class="max-w-5xl mx-auto px-6 py-8 flex gap-8">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-52 flex-shrink-0">
+      <nav class="sticky top-8 space-y-1">
+        @for (s of sections; track s.id) {
+          <button
+            (click)="activeSection.set(s.id)"
+            class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors text-left"
+            [class.bg-brand-50]="activeSection() === s.id"
+            [class.text-brand-700]="activeSection() === s.id"
+            [class.font-medium]="activeSection() === s.id"
+            [class.text-slate-600]="activeSection() !== s.id"
+            [class.hover:bg-slate-100]="activeSection() !== s.id"
+          >
+            <span>{{ s.icon }}</span>
+            <span>{{ getSectionLabel(s.id) }}</span>
+          </button>
+        }
+      </nav>
+    </aside>
+
+    <!-- Content -->
+    <main class="flex-1">
+      <p class="text-slate-500 mb-8">{{ translation.t().help.intro }}</p>
+
+      @if (activeSection() === 'taskTypes') {
+        <div class="card p-6">
+          <h2 class="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <span>○</span> {{ translation.t().help.sections.taskTypes }}
+          </h2>
+          <p class="text-slate-600 mb-4">{{ translation.t().help.taskTypes.description }}</p>
+          <div class="grid gap-3">
+            @for (item of [
+              { key: 'generation', icon: '✦', color: 'blue' },
+              { key: 'explanation', icon: '◈', color: 'violet' },
+              { key: 'evaluation', icon: '◎', color: 'emerald' },
+              { key: 'freeQuestion', icon: '○', color: 'amber' }
+            ]; track item.key) {
+              <div class="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <span class="text-xl mt-0.5">{{ item.icon }}</span>
+                <div>
+                  <p class="font-medium text-slate-800 text-sm">{{ getTaskTypeName(item.key) }}</p>
+                  <p class="text-slate-500 text-sm mt-0.5">{{ getTaskTypeHelp(item.key) }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (activeSection() === 'uml') {
+        <div class="card p-6">
+          <h2 class="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <span>⬢</span> {{ translation.t().help.sections.uml }}
+          </h2>
+          <p class="text-slate-600 mb-3">{{ translation.t().help.uml.description }}</p>
+          <p class="text-sm text-slate-500 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            {{ translation.t().help.uml.types }}
+          </p>
+          <div class="mt-4 bg-slate-900 rounded-xl p-4">
+            <p class="text-xs text-slate-400 mb-2 font-mono">Example (PlantUML):</p>
+            <pre class="text-xs text-green-400 font-mono whitespace-pre-wrap">{{ pumlExample }}</pre>
+          </div>
+        </div>
+      }
+
+      @if (activeSection() === 'bpmn') {
+        <div class="card p-6">
+          <h2 class="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <span>⬡</span> {{ translation.t().help.sections.bpmn }}
+          </h2>
+          <p class="text-slate-600 mb-3">{{ translation.t().help.bpmn.description }}</p>
+          <p class="text-sm text-slate-500 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            {{ translation.t().help.bpmn.elements }}
+          </p>
+          <div class="mt-4 grid grid-cols-3 gap-3">
+            @for (el of [
+              { name: 'Start Event', shape: '○', desc: 'Initiates the process' },
+              { name: 'Task', shape: '□', desc: 'Unit of work' },
+              { name: 'Gateway', shape: '◇', desc: 'Decision point' },
+              { name: 'End Event', shape: '⦿', desc: 'Completes the process' },
+              { name: 'Pool', shape: '▭', desc: 'Participant boundary' },
+              { name: 'Lane', shape: '≡', desc: 'Role subdivision' }
+            ]; track el.name) {
+              <div class="text-center p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="text-2xl mb-1">{{ el.shape }}</div>
+                <p class="text-xs font-medium text-slate-700">{{ el.name }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">{{ el.desc }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (activeSection() === 'petriNet') {
+        <div class="card p-6">
+          <h2 class="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <span>◉</span> {{ translation.t().help.sections.petriNet }}
+          </h2>
+          <p class="text-slate-600 mb-3">{{ translation.t().help.petriNet.description }}</p>
+          <p class="text-sm text-slate-500 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            {{ translation.t().help.petriNet.elements }}
+          </p>
+          <div class="mt-4 grid grid-cols-2 gap-3">
+            @for (el of [
+              { name: 'Place', shape: '○', desc: 'Holds tokens (state)' },
+              { name: 'Transition', shape: '▬', desc: 'Action or event' },
+              { name: 'Arc', shape: '→', desc: 'Connection with weight' },
+              { name: 'Token', shape: '●', desc: 'Current state marker' }
+            ]; track el.name) {
+              <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="text-2xl w-8 text-center">{{ el.shape }}</div>
+                <div>
+                  <p class="text-xs font-medium text-slate-700">{{ el.name }}</p>
+                  <p class="text-xs text-slate-400">{{ el.desc }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (activeSection() === 'fileUpload') {
+        <div class="card p-6">
+          <h2 class="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <span>↑</span> {{ translation.t().help.sections.fileUpload }}
+          </h2>
+          <p class="text-slate-600 mb-4">{{ translation.t().help.fileUpload.description }}</p>
+          <div class="space-y-3">
+            <div class="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <svg class="w-5 h-5 text-slate-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <div>
+                <p class="font-medium text-slate-700 text-sm">{{ translation.t().help.fileUpload.formats }}</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <svg class="w-5 h-5 text-slate-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
+              </svg>
+              <div>
+                <p class="font-medium text-slate-700 text-sm">{{ translation.t().help.fileUpload.maxSize }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </main>
+  </div>
+</div>
