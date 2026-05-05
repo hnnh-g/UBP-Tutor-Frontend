@@ -18,7 +18,7 @@ const MOCK_PREFERENCES: UserPreferences = {
   language: 'en',
   theme: 'light',
   sidebarOpen: true,
-  defaultTaskType: 'free-question',
+  defaultTaskType: 'question',
 };
 
 @Injectable({ providedIn: 'root' })
@@ -121,10 +121,10 @@ export class ApiService {
       generation: `I'll generate a ${request.message.includes('BPMN') ? 'BPMN' : request.message.includes('UML') ? 'UML' : 'Petri net'} diagram based on your description.\n\n**Generated model:**\n\nHere is a model that represents the process you described. The diagram includes the main elements and their relationships.\n\n\`\`\`plantuml\n@startuml\nactor User\nUser -> System : Request\nSystem --> User : Response\n@enduml\n\`\`\``,
       explanation: `Let me explain this model for you.\n\n**Model Explanation:**\n\nThis diagram illustrates a typical workflow with the following key components:\n\n1. **Start Event** — Initiates the process\n2. **Tasks** — Represent work steps\n3. **Gateways** — Control the flow\n4. **End Event** — Completes the process\n\nThe flow follows a sequential pattern with decision points.`,
       evaluation: `I've evaluated your model. Here are my findings:\n\n**✓ Strengths:**\n- Clear structure and layout\n- Correct use of notation\n- Good naming conventions\n\n**⚠ Suggestions:**\n- Consider adding error handling paths\n- The gateway at step 3 could be more explicit\n- Add documentation for complex transitions`,
-      'free-question': `Great question! Here's a comprehensive answer:\n\nUML, BPMN, and Petri nets are all modeling languages but serve different purposes:\n\n- **UML** focuses on software system structure and behavior\n- **BPMN** is designed for business process modeling\n- **Petri nets** are mathematical tools for concurrent system analysis\n\nChoose based on your modeling goal and audience.`,
+      'question': `Great question! Here's a comprehensive answer:\n\nUML, BPMN, and Petri nets are all modeling languages but serve different purposes:\n\n- **UML** focuses on software system structure and behavior\n- **BPMN** is designed for business process modeling\n- **Petri nets** are mathematical tools for concurrent system analysis\n\nChoose based on your modeling goal and audience.`,
     };
 
-    const content = responses[request.taskType] || responses['free-question'];
+    const content = responses[request.taskType] || responses['question'];
     return {
       id: crypto.randomUUID(),
       content,

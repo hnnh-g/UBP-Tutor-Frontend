@@ -3,7 +3,7 @@ import { TaskType, UploadedFile } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class UIStateService {
-  readonly currentTaskType = signal<TaskType>('free-question');
+  readonly currentTaskType = signal<TaskType>('question');
   readonly uploadedFile = signal<UploadedFile | null>(null);
   readonly sidebarOpen = signal(true);
   readonly helpPanelOpen = signal(false);

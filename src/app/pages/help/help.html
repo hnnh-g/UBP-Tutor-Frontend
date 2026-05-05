@@ -64,9 +64,10 @@
           <div class="grid gap-3">
             @for (item of [
               { key: 'generation', icon: '✦', color: 'blue' },
-              { key: 'explanation', icon: '◈', color: 'violet' },
+              { key: 'summary', icon: '◈', color: 'violet' },
               { key: 'evaluation', icon: '◎', color: 'emerald' },
-              { key: 'freeQuestion', icon: '○', color: 'amber' }
+              { key: 'question', icon: '○', color: 'amber' },
+              { key: 'QAgeneration', icon: '∆', color: 'green' }
             ]; track item.key) {
               <div class="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
                 <span class="text-xl mt-0.5">{{ item.icon }}</span>

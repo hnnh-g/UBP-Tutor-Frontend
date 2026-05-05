@@ -1,6 +1,6 @@
 export type Role = 'student' | 'teacher' | 'admin';
 export type Language = 'de' | 'en';
-export type TaskType = 'generation' | 'explanation' | 'evaluation' | 'free-question';
+export type TaskType = 'generation' | 'evaluation' | 'question' | 'summary' | 'QAgeneration';
 export type DiagramType = 'uml' | 'bpmn' | 'petri-net';
 export type SystemStatus = 'ready' | 'generating' | 'error';
 export type SnackbarType = 'success' | 'error' | 'warning' | 'info';
@@ -93,16 +93,6 @@ export const TASK_TYPE_OPTIONS: TaskTypeOption[] = [
     ],
   },
   {
-    value: 'explanation',
-    labelKey: 'taskType.explanation',
-    icon: '◈',
-    placeholders: [
-      'Explain this UML sequence diagram...',
-      'What does this BPMN gateway mean?',
-      'Explain the transitions in this Petri net...',
-    ],
-  },
-  {
     value: 'evaluation',
     labelKey: 'taskType.evaluation',
     icon: '◎',
@@ -113,13 +103,32 @@ export const TASK_TYPE_OPTIONS: TaskTypeOption[] = [
     ],
   },
   {
-    value: 'free-question',
-    labelKey: 'taskType.freeQuestion',
+    value: 'question',
+    labelKey: 'taskType.question',
     icon: '○',
     placeholders: [
       'What is the difference between BPMN and UML?',
       'How do I model concurrency in a Petri net?',
       'When should I use a sequence diagram?',
+    ],
+  },
+  {
+    value: 'summary',
+    labelKey: 'taskType.summary',
+    icon: '◈',
+    placeholders: [
+      'Summarize the components of a BPMN diagram.',
+      'Sumarize the UML diagram types.',
+    ],
+  },
+  {
+    value: 'QAgeneration',
+    labelKey: 'taskType.QAgeneration',
+    icon: '∆',
+    placeholders: [
+      'Generate 5 multiple choice questions.',
+      'Create 3 single choice and 3 multiple choice questions related to UML.',
+      'Create exam questions for Petri nets.',
     ],
   },
 ];
@@ -129,13 +138,17 @@ export const MAX_FILE_SIZE_MB = 10;
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 export const GENERATION_KEYWORDS = ['create', 'generate', 'make', 'build', 'draw', 'erstelle', 'generiere', 'zeichne'];
-export const EXPLANATION_KEYWORDS = ['explain', 'what is', 'describe', 'show me', 'erkläre', 'was ist', 'beschreibe'];
+export const EXPLANATION_KEYWORDS = ['explain', 'what is', 'describe', 'show me', 'erkläre', 'was ist', 'beschreibe', 'define', 'definiere'];
+export const SUMMARY_KEYWORDS = ['summary', 'zusammenfassungen']
+export const QUESTION_GENERATION = ['questions', 'fragen', 'nutzerantwort', 'user query', 'multiple choice', 'single choice'];
 export const EVALUATION_KEYWORDS = ['evaluate', 'check', 'review', 'validate', 'assess', 'bewerte', 'prüfe', 'überprüfe'];
 
 export function detectTaskType(text: string): TaskType | null {
   const lower = text.toLowerCase();
   if (GENERATION_KEYWORDS.some((k) => lower.includes(k))) return 'generation';
-  if (EXPLANATION_KEYWORDS.some((k) => lower.includes(k))) return 'explanation';
+  if (EXPLANATION_KEYWORDS.some((k) => lower.includes(k))) return 'question';
+  if (SUMMARY_KEYWORDS.some((k) => lower.includes(k))) return 'summary';
+  if (QUESTION_GENERATION.some((k) => lower.includes(k))) return 'QAgeneration';
   if (EVALUATION_KEYWORDS.some((k) => lower.includes(k))) return 'evaluation';
   return null;
 }

@@ -43,9 +43,10 @@ export const en = {
   },
   taskType: {
     generation: 'Model Generation',
-    explanation: 'Model Explanation',
     evaluation: 'Model Evaluation',
-    freeQuestion: 'Free Question',
+    question: 'Question',
+    summary: 'Summary',
+    QAgeneration: 'Question Generation',
     label: 'Task type',
   },
   settings: {
@@ -75,9 +76,10 @@ export const en = {
     taskTypes: {
       description: 'The tutor supports four task types:',
       generation: 'Generate a new diagram from a text description.',
-      explanation: 'Get an explanation of an existing diagram or concept.',
       evaluation: 'Have your diagram evaluated for correctness.',
-      freeQuestion: 'Ask any modeling-related question.',
+      question: 'Ask any modeling-related question.',
+      summary: 'Let the tutor generate a summary about a specific topic.',
+      QAgeneration: 'Let the tutor generate exam questions (e.g., multiple choice, single choice, open questions).'
     },
     uml: {
       description:

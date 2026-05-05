@@ -45,9 +45,10 @@ export const de: Translations = {
   },
   taskType: {
     generation: 'Modellerstellung',
-    explanation: 'Modellerklärung',
     evaluation: 'Modellbewertung',
-    freeQuestion: 'Freie Frage',
+    question: 'Frage',
+    summary: 'Zusammenfassungen',
+    QAgeneration: 'Fragen-Erstellung',
     label: 'Aufgabentyp',
   },
   settings: {
@@ -75,11 +76,12 @@ export const de: Translations = {
       fileUpload: 'Datei-Upload',
     },
     taskTypes: {
-      description: 'Der Tutor unterstützt vier Aufgabentypen:',
+      description: 'Der Tutor unterstützt 5 Aufgabentypen:',
       generation: 'Erstellen Sie ein neues Diagramm aus einer Textbeschreibung.',
-      explanation: 'Erhalten Sie eine Erklärung eines vorhandenen Diagramms oder Konzepts.',
       evaluation: 'Lassen Sie Ihr Diagramm auf Korrektheit prüfen.',
-      freeQuestion: 'Stellen Sie eine beliebige Frage zur Modellierung.',
+      question: 'Stellen Sie eine beliebige Frage zur Modellierung.',
+      summary: 'Lassen Sie sich Zusammenfassungen zu bestimmten Themen erstellen.',
+      QAgeneration: 'Lassen Sie sich Prüfungsfragen in folgenden Formaten erstellen (Multiple Choice, Single Choice oder offene Fragen)',
     },
     uml: {
       description:

@@ -20,9 +20,10 @@ export class MessageBubbleComponent {
   get taskIcon(): string {
     const icons: Record<string, string> = {
       generation: '✦',
-      explanation: '◈',
+      summary: '◈',
+      QAgeneration: '∆',
       evaluation: '◎',
-      'free-question': '○',
+      'question': '○',
     };
     return this.message.taskType ? (icons[this.message.taskType] ?? '○') : '○';
   }

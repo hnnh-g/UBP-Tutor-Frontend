@@ -25,7 +25,7 @@ export class SettingsPage implements OnInit {
 
   protected taskTypeOptions = TASK_TYPE_OPTIONS;
   protected selectedLanguage = signal<Language>('en');
-  protected selectedTaskType = signal<TaskType>('free-question');
+  protected selectedTaskType = signal<TaskType>('question');
 
   ngOnInit(): void {
     this.preferences.load().then(() => {

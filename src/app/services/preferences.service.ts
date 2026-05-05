@@ -10,7 +10,7 @@ const DEFAULTS: UserPreferences = {
   language: 'en',
   theme: 'light',
   sidebarOpen: true,
-  defaultTaskType: 'free-question',
+  defaultTaskType: 'question',
 };
 
 @Injectable({ providedIn: 'root' })
