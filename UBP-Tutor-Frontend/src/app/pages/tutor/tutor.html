@@ -1,0 +1,100 @@
+<div class="flex h-screen bg-slate-50 overflow-hidden">
+
+  <!-- Sidebar -->
+  @if (uiState.sidebarOpen()) {
+    <app-sidebar />
+  }
+
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+    <!-- Top bar with breadcrumb and sidebar toggle -->
+    <div class="flex items-center bg-white border-b border-slate-200">
+      <button
+        (click)="uiState.toggleSidebar()"
+        class="p-3 text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors border-r border-slate-200"
+        title="Toggle Sidebar"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+      <app-breadcrumb class="flex-1"/>
+      <button
+        (click)="uiState.toggleHelpPanel()"
+        class="flex items-center gap-2 px-4 py-3 text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors border-l border-slate-200"
+        [class.text-brand-600]="uiState.helpPanelOpen()"
+        [class.bg-brand-50]="uiState.helpPanelOpen()"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        {{ translation.t().tutor.helpPanel }}
+      </button>
+    </div>
+
+    <!-- Chat + Help Panel (side by side when help open) -->
+    <div class="flex flex-1 min-h-0">
+
+      <!-- Chat Area -->
+      <div class="flex flex-col flex-1 min-w-0">
+        <!-- Messages -->
+        <app-message-list class="flex-1 flex flex-col min-h-0" />
+
+        <!-- Visualization Panel -->
+        <app-visualization-panel />
+
+        <!-- Input Bar -->
+        <app-input-bar />
+      </div>
+
+      <!-- Help Panel -->
+      @if (uiState.helpPanelOpen()) {
+        <aside class="w-80 flex-shrink-0 border-l border-slate-200 bg-white overflow-y-auto">
+          <div class="p-4">
+            <h3 class="font-semibold text-slate-800 mb-4">{{ translation.t().help.title }}</h3>
+
+            @for (section of [
+              { id: 'taskTypes', icon: '○' },
+              { id: 'uml', icon: '⬢' },
+              { id: 'bpmn', icon: '⬡' },
+              { id: 'petriNet', icon: '◉' }
+            ]; track section.id) {
+              <div class="mb-5">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-lg">{{ section.icon }}</span>
+                  <h4 class="font-medium text-slate-700 text-sm">
+                    {{ getSectionLabel(section.id) }}
+                  </h4>
+                </div>
+                @if (section.id === 'taskTypes') {
+                  <p class="text-xs text-slate-500 leading-relaxed mb-2">
+                    {{ translation.t().help.taskTypes.description }}
+                  </p>
+                  <ul class="space-y-1">
+                    @for (item of ['generation', 'explanation', 'evaluation', 'freeQuestion']; track item) {
+                      <li class="text-xs text-slate-500 flex items-start gap-1.5">
+                        <span class="text-brand-400 mt-0.5">•</span>
+                        <span>{{ getTaskTypeHelp(item) }}</span>
+                      </li>
+                    }
+                  </ul>
+                } @else if (section.id === 'uml') {
+                  <p class="text-xs text-slate-500 leading-relaxed">{{ translation.t().help.uml.description }}</p>
+                  <p class="text-xs text-slate-400 mt-1">{{ translation.t().help.uml.types }}</p>
+                } @else if (section.id === 'bpmn') {
+                  <p class="text-xs text-slate-500 leading-relaxed">{{ translation.t().help.bpmn.description }}</p>
+                  <p class="text-xs text-slate-400 mt-1">{{ translation.t().help.bpmn.elements }}</p>
+                } @else {
+                  <p class="text-xs text-slate-500 leading-relaxed">{{ translation.t().help.petriNet.description }}</p>
+                  <p class="text-xs text-slate-400 mt-1">{{ translation.t().help.petriNet.elements }}</p>
+                }
+              </div>
+            }
+          </div>
+        </aside>
+      }
+    </div>
+  </div>
+</div>

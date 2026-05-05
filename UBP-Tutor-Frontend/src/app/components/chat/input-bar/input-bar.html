@@ -1,0 +1,115 @@
+<div class="border-t border-slate-200 bg-white px-4 py-3">
+
+  <!-- File upload badge -->
+  @if (uiState.uploadedFile(); as file) {
+    <div class="mb-2 flex items-center gap-2 px-3 py-2 bg-brand-50 border border-brand-200 rounded-lg">
+      <svg class="w-4 h-4 text-brand-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+      </svg>
+      <span class="text-sm text-brand-700 flex-1 truncate">{{ file.name }}</span>
+      <span class="text-xs text-brand-500">{{ formatFileSize(file.size) }}</span>
+      <button
+        (click)="uiState.clearUploadedFile()"
+        class="text-brand-400 hover:text-brand-600 ml-1"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  }
+
+  <!-- Input area -->
+  <div class="flex items-end gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-brand-500 focus-within:border-transparent">
+
+    <!-- Task type selector -->
+    <select
+      [value]="uiState.currentTaskType()"
+      (change)="uiState.setTaskType($any($event.target).value)"
+      class="text-xs text-slate-600 bg-transparent border-0 outline-none py-1 cursor-pointer flex-shrink-0"
+    >
+      @for (opt of taskTypeOptions; track opt.value) {
+        <option [value]="opt.value">{{ opt.icon }} {{ translation.translate(opt.labelKey) }}</option>
+      }
+    </select>
+
+    <div class="w-px h-5 bg-slate-200 self-center flex-shrink-0"></div>
+
+    <!-- Textarea -->
+    <textarea
+      #textarea
+      [value]="inputText()"
+      (input)="onInput($event)"
+      (keydown)="onKeyDown($event)"
+      [placeholder]="currentPlaceholder()"
+      [disabled]="chat.isStreaming()"
+      rows="1"
+      class="flex-1 bg-transparent border-0 outline-none resize-none text-sm text-slate-800 placeholder-slate-400 py-1 max-h-40 overflow-y-auto"
+    ></textarea>
+
+    <!-- Action buttons -->
+    <div class="flex items-center gap-1 flex-shrink-0">
+
+      <!-- File upload -->
+      <button
+        (click)="triggerFileUpload()"
+        [disabled]="chat.isStreaming()"
+        title="{{ translation.t().tutor.upload }}"
+        class="p-1.5 text-slate-400 hover:text-slate-600 disabled:opacity-40 rounded-lg hover:bg-slate-100 transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+        </svg>
+      </button>
+      <input
+        #fileInput
+        type="file"
+        class="hidden"
+        [accept]="'.bpmn,.xml,.puml,.pnml'"
+        (change)="onFileSelected($event)"
+      />
+
+      <!-- Language toggle -->
+      <button
+        (click)="translation.toggle()"
+        title="{{ translation.t().language.toggle }}"
+        class="px-2 py-1 text-xs font-medium text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors uppercase"
+      >
+        {{ translation.language() }}
+      </button>
+
+      <!-- Stop / Send -->
+      @if (chat.isStreaming()) {
+        <button
+          (click)="chat.cancelGeneration()"
+          class="p-1.5 text-red-500 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+          title="{{ translation.t().tutor.stop }}"
+        >
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <rect x="6" y="6" width="12" height="12" rx="2"/>
+          </svg>
+        </button>
+      } @else {
+        <button
+          (click)="send()"
+          [disabled]="!canSend()"
+          class="p-1.5 rounded-lg transition-colors"
+          [class.text-brand-600]="canSend()"
+          [class.hover:bg-brand-50]="canSend()"
+          [class.text-slate-300]="!canSend()"
+          [class.cursor-not-allowed]="!canSend()"
+          title="{{ translation.t().tutor.send }}"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+          </svg>
+        </button>
+      }
+    </div>
+  </div>
+
+  <p class="text-center text-xs text-slate-400 mt-2">
+    Press Enter to send, Shift+Enter for new line
+  </p>
+</div>
