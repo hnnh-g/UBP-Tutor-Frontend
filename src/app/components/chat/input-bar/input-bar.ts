@@ -47,9 +47,11 @@ export class InputBarComponent implements OnInit, OnDestroy {
 
   protected currentPlaceholder = computed(() => {
     const task = this.uiState.currentTaskType();
-    const opts = this.taskTypeOptions.find((o) => o.value === task);
-    if (!opts) return this.translation.t().tutor.placeholder;
-    return opts.placeholders[this.currentPlaceholderIndex() % opts.placeholders.length];
+    const placeholders = this.translation.t().tutor.dynamicPlaceholders?.[task];
+    if (!placeholders || placeholders.length === 0) {
+      return this.translation.t().tutor.placeholder;
+    }
+    return placeholders[this.currentPlaceholderIndex() % placeholders.length];
   });
 
   protected canSend = computed(

@@ -18,12 +18,7 @@
 
       <!-- Suggestion chips -->
       <div class="mt-6 flex flex-wrap gap-2 justify-center max-w-lg">
-        @for (suggestion of [
-          'Create a BPMN diagram for an order process',
-          'Explain UML class diagrams',
-          'Evaluate this Petri net model',
-          'What is a sequence diagram?'
-        ]; track suggestion) {
+        @for (suggestion of translation.t().tutor.emptyState.suggestions; track suggestion) {
           <span class="text-xs px-3 py-1.5 bg-white border border-slate-200 rounded-full text-slate-600 shadow-sm">
             {{ suggestion }}
           </span>

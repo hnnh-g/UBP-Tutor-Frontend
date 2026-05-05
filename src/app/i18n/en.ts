@@ -39,6 +39,38 @@ export const en = {
     emptyState: {
       title: 'Welcome to the UBP Modeling Tutor',
       subtitle: 'Choose a task type and start your conversation',
+      suggestions: [
+        'Create a BPMN diagram for an order process',
+        'Explain UML class diagrams',
+        'Evaluate this Petri net model',
+        'What is a sequence diagram?'
+      ],
+    },
+    dynamicPlaceholders: {
+      generation: [
+        'Create a BPMN diagram for an order process...',
+        'Generate a UML class diagram for a library system...',
+        'Model a Petri net for a traffic light...',
+      ],
+      evaluation: [
+        'Evaluate this UML class diagram for correctness...',
+        'Check this BPMN model for best practices...',
+        'Is my Petri net deadlock-free?',
+      ],
+      question: [
+        'What is the difference between BPMN and UML?',
+        'How do I model concurrency in a Petri net?',
+        'When should I use a sequence diagram?',
+      ],
+      summary: [
+        'Summarize the components of a BPMN diagram.',
+        'Summarize the UML diagram types.',
+      ],
+      QAgeneration: [
+        'Generate 5 multiple choice questions.',
+        'Create 3 single choice and 3 multiple choice questions related to UML.',
+        'Create exam questions for Petri nets.',
+      ],
     },
   },
   taskType: {

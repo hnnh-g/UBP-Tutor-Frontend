@@ -41,6 +41,38 @@ export const de: Translations = {
     emptyState: {
       title: 'Willkommen beim UBP Modellierungstutor',
       subtitle: 'Wählen Sie einen Aufgabentyp und beginnen Sie Ihr Gespräch',
+      suggestions: [
+        'Erstelle ein BPMN-Diagramm für einen Bestellprozess',
+        'Erkläre UML-Klassendiagramme',
+        'Bewerte dieses Petri-Netz-Modell',
+        'Was ist ein Sequenzdiagramm?'
+      ],
+    },
+    dynamicPlaceholders: {
+      generation: [
+        'Erstelle ein BPMN-Diagramm für einen Bestellprozess...',
+        'Generiere ein UML-Klassendiagramm für ein Bibliothekssystem...',
+        'Modelliere ein Petri-Netz für eine Ampel...',
+      ],
+      evaluation: [
+        'Bewerte dieses UML-Klassendiagramm auf Korrektheit...',
+        'Überprüfe dieses BPMN-Modell auf Best Practices...',
+        'Ist mein Petri-Netz frei von Deadlocks?',
+      ],
+      question: [
+        'Was ist der Unterschied zwischen BPMN und UML?',
+        'Wie modelliere ich Nebenläufigkeit in einem Petri-Netz?',
+        'Wann sollte ich ein Sequenzdiagramm verwenden?',
+      ],
+      summary: [
+        'Fasse die Komponenten eines BPMN-Diagramms zusammen.',
+        'Fasse die UML-Diagrammtypen zusammen.',
+      ],
+      QAgeneration: [
+        'Generiere 5 Multiple-Choice-Fragen.',
+        'Erstelle 3 Single-Choice- und 3 Multiple-Choice-Fragen zu UML.',
+        'Erstelle Prüfungsfragen für Petri-Netze.',
+      ],
     },
   },
   taskType: {
