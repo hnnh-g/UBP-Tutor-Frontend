@@ -23,10 +23,6 @@ export class WelcomePage {
     this.auth.login();
   }
 
-  mockLoginAs(role: 'student' | 'teacher' | 'admin'): void {
-    this.auth.mockLogin(role);
-  }
-
   getFeature(key: string): { title: string; description: string } {
     return (this.translation.t().welcome.features as Record<string, { title: string; description: string }>)[key]
       ?? { title: key, description: '' };

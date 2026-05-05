@@ -50,32 +50,9 @@
 
       <!-- Login Buttons -->
       <div class="flex flex-col items-center gap-4">
-        @if (isMockAuth) {
-          <p class="text-xs mb-1 bg-amber-50 border border-amber-200 px-4 py-2 rounded-lg text-amber-600">
-            Development mode — Keycloak not required
-          </p>
-          <div class="flex flex-wrap gap-3 justify-center">
-            <button (click)="mockLoginAs('student')" class="btn-primary text-base px-6 py-3">
-              Login as Student
-            </button>
-            <button
-              (click)="mockLoginAs('teacher')"
-              class="btn-secondary text-base px-6 py-3"
-            >
-              Login as Teacher
-            </button>
-            <button
-              (click)="mockLoginAs('admin')"
-              class="btn-secondary text-base px-6 py-3"
-            >
-              Login as Admin
-            </button>
-          </div>
-        } @else {
           <button (click)="login()" class="btn-primary text-base px-8 py-3">
             {{ translation.t().welcome.loginButton }}
           </button>
-        }
       </div>
 
       <!-- Feature Cards -->

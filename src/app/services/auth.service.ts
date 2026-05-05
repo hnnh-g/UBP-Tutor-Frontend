@@ -68,21 +68,6 @@ export class AuthService {
     this.isInitialized.set(true);
   }
 
-  mockLogin(role: Role = 'student'): void {
-    const user: User = {
-      id: 'mock-user-001',
-      username: role === 'admin' ? 'admin' : role === 'teacher' ? 'prof.mueller' : 'student123',
-      email: `${role}@ovgu.de`,
-      firstName: role === 'admin' ? 'Admin' : role === 'teacher' ? 'Prof. Müller' : 'Anna',
-      lastName: role === 'admin' ? 'User' : role === 'teacher' ? '' : 'Schmidt',
-      roles: [role],
-    };
-    sessionStorage.setItem('mock_auth', JSON.stringify(user));
-    this.currentUser.set(user);
-    this.isAuthenticated.set(true);
-    this.router.navigate(['/tutor']);
-  }
-
   private async loadUserProfile(): Promise<void> {
     if (!this.keycloak) return;
     try {
@@ -117,19 +102,16 @@ export class AuthService {
 
   private setupTokenRefresh(): void {
     if (!this.keycloak) return;
-    this.keycloak.onTokenExpired = () => {
-      this.keycloak?.updateToken(60).catch(() => this.logout());
-    };
-    setInterval(() => {
-      this.keycloak?.updateToken(60).catch(() => this.logout());
+    setInterval(async () => {
+      try {
+        await this.keycloak.updateToken(60);
+      } catch {
+        this.logout();
+      }
     }, 60_000);
   }
 
   async login(): Promise<void> {
-    if (environment.useMockAuth) {
-      this.mockLogin('student');
-      return;
-    }
     await this.keycloak?.login({ redirectUri: window.location.origin + '/tutor' });
   }
 
