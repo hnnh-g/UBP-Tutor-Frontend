@@ -17,8 +17,6 @@ export class WelcomePage {
   protected translation = inject(TranslationService);
   private router = inject(Router);
 
-  protected isMockAuth = environment.useMockAuth;
-
   login(): void {
     this.auth.login();
   }

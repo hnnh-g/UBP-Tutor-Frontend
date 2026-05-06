@@ -22,9 +22,9 @@ export class ChatService {
   private cancelFn: (() => void) | null = null;
 
   constructor() {
-  fetch('/assets/example-diagrams/uml-test.pnml')
+  fetch('/assets/example-diagrams/petri-net.pnml')
     .then(r => r.text())
-    .then(xml => this.currentDiagram.set({ type: 'uml', content: xml }));
+    .then(xml => this.currentDiagram.set({ type: 'petri-net', content: xml }));
 }
 
   sendMessage(text: string): void {

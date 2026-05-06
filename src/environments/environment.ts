@@ -11,6 +11,4 @@ export const environment = {
       (typeof window !== 'undefined' && (window as any).__env?.KEYCLOAK_CLIENT_ID) ||
       'ubp-tutor-frontend',
   },
-  useMockAuth:
-    (typeof window !== 'undefined' && (window as any).__env?.USE_MOCK_AUTH === 'true') || false,
 };

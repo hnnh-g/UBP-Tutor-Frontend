@@ -2,7 +2,7 @@ import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, of, throwError, from } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import {
   ChatRequest,
@@ -33,28 +33,24 @@ export class ApiService {
   }
 
   getHealth(): Observable<HealthResponse> {
-    if (environment.useMockAuth) return of(MOCK_HEALTH);
     return this.http.get<HealthResponse>(`${this.apiUrl}/health`).pipe(
       catchError(() => of({ status: 'error' as const, message: 'Cannot reach backend' })),
     );
   }
 
   sendMessage(request: ChatRequest): Observable<ChatResponse> {
-    if (environment.useMockAuth) return of(this.mockChatResponse(request));
     return this.http.post<ChatResponse>(`${this.apiUrl}/chat`, request).pipe(
       catchError((err) => this.handleError(err)),
     );
   }
 
   getPreferences(): Observable<UserPreferences> {
-    if (environment.useMockAuth) return of(MOCK_PREFERENCES);
     return this.http.get<UserPreferences>(`${this.apiUrl}/user/preferences`).pipe(
       catchError(() => of(MOCK_PREFERENCES)),
     );
   }
 
   updatePreferences(prefs: Partial<UserPreferences>): Observable<UserPreferences> {
-    if (environment.useMockAuth) return of({ ...MOCK_PREFERENCES, ...prefs });
     return this.http
       .patch<UserPreferences>(`${this.apiUrl}/user/preferences`, prefs)
       .pipe(catchError((err) => this.handleError(err)));
@@ -62,7 +58,6 @@ export class ApiService {
 
   streamMessage(request: ChatRequest): Observable<string> {
     if (!isPlatformBrowser(this.platformId)) return of('');
-    if (environment.useMockAuth) return this.mockStream(request);
     return from(this.doFetchStream(request));
   }
 

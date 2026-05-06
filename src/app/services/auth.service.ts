@@ -101,16 +101,10 @@ export class AuthService {
   async logout(): Promise<void> {
     this.isAuthenticated.set(false);
     this.currentUser.set(null);
-    if (environment.useMockAuth) {
-      sessionStorage.removeItem('mock_auth');
-      this.router.navigate(['/']);
-      return;
-    }
     await this.keycloak?.logout({ redirectUri: window.location.origin + '/' });
   }
 
   async getToken(): Promise<string | null> {
-    if (environment.useMockAuth) return 'mock-token';
     if (!this.keycloak?.authenticated) return null;
     try {
       await this.keycloak.updateToken(30);

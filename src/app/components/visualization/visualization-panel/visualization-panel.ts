@@ -5,7 +5,7 @@ import { UIStateService } from '../../../services/ui-state.service';
 import { CommonModule } from '@angular/common';
 import BpmnViewer from 'bpmn-js/lib/Viewer';
 import { encode } from 'plantuml-encoder';
-
+import cytoscape from 'cytoscape';
 
 @Component({
   selector: 'app-visualization-panel',
@@ -18,6 +18,10 @@ export class VisualizationPanelComponent implements OnDestroy {
   protected chat = inject(ChatService);
   protected translation = inject(TranslationService);
   protected uiState = inject(UIStateService);
+
+  @ViewChild('petriCanvas', { static: false })
+  private petriCanvasRef!: ElementRef<HTMLDivElement>;
+  private petriViewer?: cytoscape.Core;
 
   @ViewChild('canvas', {static: false})
   private canvasRef!: ElementRef<HTMLDivElement>;
@@ -42,9 +46,12 @@ export class VisualizationPanelComponent implements OnDestroy {
       if (diagram) {
         this.uiState.expandVisualization();
         if (diagram.type === 'uml') this.panelHeight.set(400);
+        if (diagram.type === 'petri-net') this.panelHeight.set(400);
       }
       if (diagram?.type === 'bpmn') {
         setTimeout(() => this.renderBpmn(diagram.content), 0);
+      } else if (diagram?.type === 'petri-net') {
+        setTimeout(() => this.renderPetriNet(diagram.content), 0);
       } else {
         this.destroyViewer();
       }
@@ -77,9 +84,83 @@ export class VisualizationPanelComponent implements OnDestroy {
     }
   }
 
+  private renderPetriNet(xml: string): void {
+  if (!this.petriCanvasRef) return;
+
+  this.petriViewer?.destroy();
+  this.petriViewer = undefined;
+
+  const doc = new DOMParser().parseFromString(xml, 'text/xml');
+  const nodes: cytoscape.NodeDefinition[] = [];
+  const edges: cytoscape.EdgeDefinition[] = [];
+
+  doc.querySelectorAll('place').forEach(el => {
+    const id = el.getAttribute('id')!;
+    const label = el.querySelector('name > text')?.textContent ?? id;
+    const marking = parseInt(el.querySelector('initialMarking > text')?.textContent ?? '0');
+    const x = parseFloat(el.querySelector('graphics > position')?.getAttribute('x') ?? '0');
+    const y = parseFloat(el.querySelector('graphics > position')?.getAttribute('y') ?? '0');
+    nodes.push({ data: { id, label, type: 'place', marking }, ...(x || y ? { position: { x, y } } : {}) });
+  });
+
+  doc.querySelectorAll('transition').forEach(el => {
+    const id = el.getAttribute('id')!;
+    const label = el.querySelector('name > text')?.textContent ?? id;
+    const x = parseFloat(el.querySelector('graphics > position')?.getAttribute('x') ?? '0');
+    const y = parseFloat(el.querySelector('graphics > position')?.getAttribute('y') ?? '0');
+    nodes.push({ data: { id, label, type: 'transition' }, ...(x || y ? { position: { x, y } } : {}) });
+  });
+
+  doc.querySelectorAll('arc').forEach(el => {
+    edges.push({ data: {
+      id: el.getAttribute('id')!,
+      source: el.getAttribute('source')!,
+      target: el.getAttribute('target')!,
+    }});
+  });
+
+  const hasPositions = nodes.some(n => n.position);
+
+  this.petriViewer = cytoscape({
+    container: this.petriCanvasRef.nativeElement,
+    elements: { nodes, edges },
+    layout: hasPositions
+      ? { name: 'preset' }
+      : { name: 'breadthfirst', directed: true, padding: 30 } as any,
+    style: [
+      { selector: 'node[type="place"]', style: {
+          'background-color': '#ffffff', 'border-color': '#334155', 'border-width': 2,
+          shape: 'ellipse', width: 44, height: 44,
+          label: 'data(label)', 'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 6, color: '#334155',
+      }},
+      { selector: 'node[type="place"][marking > 0]', style: { 'background-color': '#334155' }},
+      { selector: 'node[type="transition"]', style: {
+          'background-color': '#334155', shape: 'rectangle', width: 16, height: 44,
+          label: 'data(label)', 'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 6, color: '#334155',
+      }},
+      { selector: 'edge', style: {
+          width: 1.5, 'line-color': '#334155', 'target-arrow-color': '#334155',
+          'target-arrow-shape': 'triangle', 'curve-style': 'bezier',
+      }},
+    ],
+  });
+
+  this.petriViewer.fit(undefined, 20);
+
+  const bb = this.petriViewer.elements().boundingBox({});
+  if (bb.w > 0 && bb.h > 0) {
+    const containerWidth = this.petriCanvasRef.nativeElement.offsetWidth;
+    const natural = Math.round(containerWidth * (bb.h / bb.w));
+    this.panelHeight.set(Math.min(800, Math.max(350, natural)));
+  }
+}
+
+
   private destroyViewer(): void {
     this.viewer?.destroy();
     this.viewer = undefined;
+    this.petriViewer?.destroy();
+    this.petriViewer = undefined;
   }
 
   get diagramTypeLabel(): string {

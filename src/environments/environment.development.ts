@@ -6,5 +6,4 @@ export const environment = {
     realm: 'ubp-tutor',
     clientId: 'ubp-frontend',
   },
-  useMockAuth: false,
 };
