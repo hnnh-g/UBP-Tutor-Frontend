@@ -29,6 +29,10 @@ export class UIStateService {
     this.helpPanelOpen.update((v) => !v);
   }
 
+  expandVisualization(): void {
+    this.visualizationExpanded.set(true);
+  }
+
   toggleVisualization(): void {
     this.visualizationExpanded.update((v) => !v);
   }

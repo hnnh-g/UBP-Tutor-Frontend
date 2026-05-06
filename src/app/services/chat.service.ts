@@ -21,6 +21,12 @@ export class ChatService {
   private streamSub: Subscription | null = null;
   private cancelFn: (() => void) | null = null;
 
+  constructor() {
+  fetch('/assets/example-diagrams/uml-test.pnml')
+    .then(r => r.text())
+    .then(xml => this.currentDiagram.set({ type: 'uml', content: xml }));
+}
+
   sendMessage(text: string): void {
     if (!text.trim() || this.isStreaming()) return;
 
