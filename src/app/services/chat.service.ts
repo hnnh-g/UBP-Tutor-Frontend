@@ -33,6 +33,8 @@ export class ChatService {
     const detectedType = detectTaskType(text);
     if (detectedType) this.uiState.setTaskType(detectedType);
 
+    console.log(detectedType);
+
     const userMessage: Message = {
       id: crypto.randomUUID(),
       role: 'user',
@@ -59,43 +61,71 @@ export class ChatService {
 
     const request: ChatRequest = {
       message: text.trim(),
-      taskType: this.uiState.currentTaskType(),
-      language: this.translation.language(),
-      uploadedFile: userMessage.uploadedFile,
-      conversationId: this.conversationId() ?? undefined,
+      task_type: this.uiState.currentTaskType(),
+      session_id: this.conversationId() ?? undefined,
+      metadata: {
+        language: this.translation.language(),
+        uploadedFile: userMessage.uploadedFile,
+      },
     };
 
-    let accumulatedContent = '';
+    if (request.task_type === 'model_generation') {
+        this.api.sendMessage(request).subscribe({
+        next: (response) => {
+          this.messages.update((msgs) =>
+            msgs.map((m) =>
+              m.id === tutorMsgId
+                ? { ...m, content: response.content, isStreaming: false }
+                : m,
+            ),
+          );
+          this.isStreaming.set(false);
+        },
+        error: () => {
+          this.messages.update((msgs) =>
+            msgs.map((m) =>
+              m.id === tutorMsgId
+                ? { ...m, content: 'An error occurred. Please try again.', isStreaming: false }
+                : m,
+            ),
+          );
+          this.isStreaming.set(false);
+        },
+      });
+    }
+    else {
+      let accumulatedContent = '';
 
-    this.streamSub = this.api.streamMessage(request).subscribe({
-      next: (chunk) => {
-        accumulatedContent += chunk;
-        this.messages.update((msgs) =>
-          msgs.map((m) =>
-            m.id === tutorMsgId ? { ...m, content: accumulatedContent } : m,
-          ),
-        );
-      },
-      error: (err) => {
-        this.messages.update((msgs) =>
-          msgs.map((m) =>
-            m.id === tutorMsgId
-              ? { ...m, content: 'An error occurred. Please try again.', isStreaming: false }
-              : m,
-          ),
-        );
-        this.isStreaming.set(false);
-      },
-      complete: () => {
-        this.messages.update((msgs) =>
-          msgs.map((m) =>
-            m.id === tutorMsgId ? { ...m, isStreaming: false } : m,
-          ),
-        );
-        this.isStreaming.set(false);
-        this.extractDiagram(accumulatedContent);
-      },
-    });
+      this.streamSub = this.api.streamMessage(request).subscribe({
+        next: (chunk) => {
+          accumulatedContent += chunk;
+          this.messages.update((msgs) =>
+            msgs.map((m) =>
+              m.id === tutorMsgId ? { ...m, content: accumulatedContent } : m,
+            ),
+          );
+        },
+        error: (err) => {
+          this.messages.update((msgs) =>
+            msgs.map((m) =>
+              m.id === tutorMsgId
+                ? { ...m, content: 'An error occurred. Please try again.', isStreaming: false }
+                : m,
+            ),
+          );
+          this.isStreaming.set(false);
+        },
+        complete: () => {
+          this.messages.update((msgs) =>
+            msgs.map((m) =>
+              m.id === tutorMsgId ? { ...m, isStreaming: false } : m,
+            ),
+          );
+          this.isStreaming.set(false);
+          this.extractDiagram(accumulatedContent);
+        },
+      });
+    }
   }
 
   cancelGeneration(): void {

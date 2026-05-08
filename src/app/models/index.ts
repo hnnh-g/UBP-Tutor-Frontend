@@ -1,6 +1,6 @@
 export type Role = 'STUDENT' | 'TEACHER' | 'ADMIN';
 export type Language = 'de' | 'en';
-export type TaskType = 'generation' | 'evaluation' | 'question' | 'summary' | 'QAgeneration';
+export type TaskType = 'model_generation' | 'model_evaluation' | 'question' | 'summary' | 'question_generation';
 export type DiagramType = 'uml' | 'bpmn' | 'petri-net';
 export type SystemStatus = 'ready' | 'generating' | 'error';
 export type SnackbarType = 'success' | 'error' | 'warning' | 'info';
@@ -40,10 +40,12 @@ export interface UploadedFile {
 
 export interface ChatRequest {
   message: string;
-  taskType: TaskType;
-  language: Language;
-  uploadedFile?: UploadedFile;
-  conversationId?: string;
+  task_type: string;
+  session_id?: string;
+  metadata?: {
+    language?: string;
+    uploadedFile?: unknown;
+  };
 }
 
 export interface ChatResponse {
@@ -83,8 +85,8 @@ export interface TaskTypeOption {
 
 export const TASK_TYPE_OPTIONS: TaskTypeOption[] = [
   {
-    value: 'generation',
-    labelKey: 'taskType.generation',
+    value: 'model_generation',
+    labelKey: 'taskType.model_generation',
     icon: '✦',
     placeholders: [
       'Create a BPMN diagram for an order process...',
@@ -93,8 +95,8 @@ export const TASK_TYPE_OPTIONS: TaskTypeOption[] = [
     ],
   },
   {
-    value: 'evaluation',
-    labelKey: 'taskType.evaluation',
+    value: 'model_evaluation',
+    labelKey: 'taskType.model_evaluation',
     icon: '◎',
     placeholders: [
       'Evaluate this UML class diagram for correctness...',
@@ -122,8 +124,8 @@ export const TASK_TYPE_OPTIONS: TaskTypeOption[] = [
     ],
   },
   {
-    value: 'QAgeneration',
-    labelKey: 'taskType.QAgeneration',
+    value: 'question_generation',
+    labelKey: 'taskType.question_generation',
     icon: '∆',
     placeholders: [
       'Generate 5 multiple choice questions.',
@@ -145,10 +147,10 @@ export const EVALUATION_KEYWORDS = ['evaluate', 'check', 'review', 'validate', '
 
 export function detectTaskType(text: string): TaskType | null {
   const lower = text.toLowerCase();
-  if (GENERATION_KEYWORDS.some((k) => lower.includes(k))) return 'generation';
+  if (GENERATION_KEYWORDS.some((k) => lower.includes(k))) return 'model_generation';
   if (EXPLANATION_KEYWORDS.some((k) => lower.includes(k))) return 'question';
   if (SUMMARY_KEYWORDS.some((k) => lower.includes(k))) return 'summary';
-  if (QUESTION_GENERATION.some((k) => lower.includes(k))) return 'QAgeneration';
-  if (EVALUATION_KEYWORDS.some((k) => lower.includes(k))) return 'evaluation';
+  if (QUESTION_GENERATION.some((k) => lower.includes(k))) return 'question_generation';
+  if (EVALUATION_KEYWORDS.some((k) => lower.includes(k))) return 'model_evaluation';
   return null;
 }

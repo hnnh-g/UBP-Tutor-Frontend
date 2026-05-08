@@ -63,11 +63,11 @@
           <p class="text-slate-600 mb-4">{{ translation.t().help.taskTypes.description }}</p>
           <div class="grid gap-3">
             @for (item of [
-              { key: 'generation', icon: '✦', color: 'blue' },
+              { key: 'model_generation', icon: '✦', color: 'blue' },
               { key: 'summary', icon: '◈', color: 'violet' },
-              { key: 'evaluation', icon: '◎', color: 'emerald' },
+              { key: 'model_evaluation', icon: '◎', color: 'emerald' },
               { key: 'question', icon: '○', color: 'amber' },
-              { key: 'QAgeneration', icon: '∆', color: 'green' }
+              { key: 'question_generation', icon: '∆', color: 'green' }
             ]; track item.key) {
               <div class="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
                 <span class="text-xl mt-0.5">{{ item.icon }}</span>

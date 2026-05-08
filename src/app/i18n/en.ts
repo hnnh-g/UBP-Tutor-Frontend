@@ -14,7 +14,7 @@ export const en = {
       'Get instant help with model generation, explanation, and evaluation from an intelligent tutor system.',
     loginButton: 'Login to get started',
     features: {
-      generation: {
+      model_generation: {
         title: 'Model Generation',
         description: 'Generate UML, BPMN, and Petri net diagrams from natural language descriptions.',
       },
@@ -47,12 +47,12 @@ export const en = {
       ],
     },
     dynamicPlaceholders: {
-      generation: [
+      model_generation: [
         'Create a BPMN diagram for an order process...',
         'Generate a UML class diagram for a library system...',
         'Model a Petri net for a traffic light...',
       ],
-      evaluation: [
+      model_evaluation: [
         'Evaluate this UML class diagram for correctness...',
         'Check this BPMN model for best practices...',
         'Is my Petri net deadlock-free?',
@@ -66,7 +66,7 @@ export const en = {
         'Summarize the components of a BPMN diagram.',
         'Summarize the UML diagram types.',
       ],
-      QAgeneration: [
+      question_generation: [
         'Generate 5 multiple choice questions.',
         'Create 3 single choice and 3 multiple choice questions related to UML.',
         'Create exam questions for Petri nets.',
@@ -74,11 +74,11 @@ export const en = {
     },
   },
   taskType: {
-    generation: 'Model Generation',
-    evaluation: 'Model Evaluation',
+    model_generation: 'Model Generation',
+    model_evaluation: 'Model Evaluation',
     question: 'Question',
     summary: 'Summary',
-    QAgeneration: 'Question Generation',
+    question_generation: 'Question Generation',
     label: 'Task type',
   },
   settings: {
@@ -107,11 +107,11 @@ export const en = {
     },
     taskTypes: {
       description: 'The tutor supports four task types:',
-      generation: 'Generate a new diagram from a text description.',
-      evaluation: 'Have your diagram evaluated for correctness.',
+      model_generation: 'Generate a new diagram from a text description.',
+      model_evaluation: 'Have your diagram evaluated for correctness.',
       question: 'Ask any modeling-related question.',
       summary: 'Let the tutor generate a summary about a specific topic.',
-      QAgeneration: 'Let the tutor generate exam questions (e.g., multiple choice, single choice, open questions).'
+      question_generation: 'Let the tutor generate exam questions (e.g., multiple choice, single choice, open questions).'
     },
     uml: {
       description:

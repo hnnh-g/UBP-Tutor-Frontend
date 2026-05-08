@@ -58,9 +58,9 @@
       <!-- Feature Cards -->
       <div class="grid md:grid-cols-3 gap-4 mt-8">
         @for (feature of [
-          { key: 'generation', icon: '✦' },
-          { key: 'questions', icon: '◈' },
-          { key: 'evaluation', icon: '◎' }
+          { key: 'model_generation', icon: '✦' },
+          { key: 'question', icon: '◈' },
+          { key: 'model_evaluation', icon: '◎' }
         ]; track feature.key) {
           <div class="p-5 rounded-2xl border border-brand-300 bg-brand-50 text-left">
             <div class="text-2xl mb-3 text-brand-500">{{ feature.icon }}</div>

@@ -19,11 +19,11 @@ export class MessageBubbleComponent {
 
   get taskIcon(): string {
     const icons: Record<string, string> = {
-      generation: '✦',
+      model_generation: '✦',
       summary: '◈',
-      QAgeneration: '∆',
-      evaluation: '◎',
-      'question': '○',
+      question_generation: '∆',
+      model_evaluation: '◎',
+      question: '○',
     };
     return this.message.taskType ? (icons[this.message.taskType] ?? '○') : '○';
   }

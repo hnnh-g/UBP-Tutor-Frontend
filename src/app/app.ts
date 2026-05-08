@@ -1,24 +1,32 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, effect } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
+import { PreferencesService } from './services/preferences.service';
 import { SnackbarComponent } from './components/ui/snackbar/snackbar';
 import { LoadingSpinnerComponent } from './components/ui/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, SnackbarComponent, LoadingSpinnerComponent],
+  imports: [RouterOutlet, SnackbarComponent, LoadingSpinnerComponent],
   template: `
     @if (auth.isLoading()) {
-      <app-loading-spinner [overlay]="true" label="Initializing..." />
+      <app-loading-spinner />
     } @else {
       <router-outlet />
+      <app-snackbar />
     }
-    <app-snackbar />
   `,
-  styles: [':host { display: block; height: 100%; }'],
 })
-export class App {
+export class AppComponent {
   protected auth = inject(AuthService);
+  private prefs = inject(PreferencesService);
+
+  constructor() {
+    effect(() => {
+      if (this.auth.isAuthenticated()) {
+        this.prefs.load();
+      }
+    });
+  }
 }

@@ -16,7 +16,7 @@ export const de: Translations = {
       'Erhalten Sie sofortige Hilfe bei der Modellerstellung, Erklärung und Bewertung durch ein intelligentes Tutorsystem.',
     loginButton: 'Jetzt anmelden',
     features: {
-      generation: {
+      model_generation: {
         title: 'Modellerstellung',
         description: 'Erstellen Sie UML-, BPMN- und Petri-Netz-Diagramme aus natürlichsprachlichen Beschreibungen.',
       },
@@ -49,12 +49,12 @@ export const de: Translations = {
       ],
     },
     dynamicPlaceholders: {
-      generation: [
+      model_generation: [
         'Erstelle ein BPMN-Diagramm für einen Bestellprozess...',
         'Generiere ein UML-Klassendiagramm für ein Bibliothekssystem...',
         'Modelliere ein Petri-Netz für eine Ampel...',
       ],
-      evaluation: [
+      model_evaluation: [
         'Bewerte dieses UML-Klassendiagramm auf Korrektheit...',
         'Überprüfe dieses BPMN-Modell auf Best Practices...',
         'Ist mein Petri-Netz frei von Deadlocks?',
@@ -68,7 +68,7 @@ export const de: Translations = {
         'Fasse die Komponenten eines BPMN-Diagramms zusammen.',
         'Fasse die UML-Diagrammtypen zusammen.',
       ],
-      QAgeneration: [
+      question_generation: [
         'Generiere 5 Multiple-Choice-Fragen.',
         'Erstelle 3 Single-Choice- und 3 Multiple-Choice-Fragen zu UML.',
         'Erstelle Prüfungsfragen für Petri-Netze.',
@@ -76,11 +76,11 @@ export const de: Translations = {
     },
   },
   taskType: {
-    generation: 'Modellerstellung',
-    evaluation: 'Modellbewertung',
+    model_generation: 'Modellerstellung',
+    model_evaluation: 'Modellbewertung',
     question: 'Frage',
     summary: 'Zusammenfassungen',
-    QAgeneration: 'Fragen-Erstellung',
+    question_generation: 'Fragen-Erstellung',
     label: 'Aufgabentyp',
   },
   settings: {
@@ -109,11 +109,11 @@ export const de: Translations = {
     },
     taskTypes: {
       description: 'Der Tutor unterstützt 5 Aufgabentypen:',
-      generation: 'Erstellen Sie ein neues Diagramm aus einer Textbeschreibung.',
-      evaluation: 'Lassen Sie Ihr Diagramm auf Korrektheit prüfen.',
+      model_generation: 'Erstellen Sie ein neues Diagramm aus einer Textbeschreibung.',
+      model_evaluation: 'Lassen Sie Ihr Diagramm auf Korrektheit prüfen.',
       question: 'Stellen Sie eine beliebige Frage zur Modellierung.',
       summary: 'Lassen Sie sich Zusammenfassungen zu bestimmten Themen erstellen.',
-      QAgeneration: 'Lassen Sie sich Prüfungsfragen in folgenden Formaten erstellen (Multiple Choice, Single Choice oder offene Fragen)',
+      question_generation: 'Lassen Sie sich Prüfungsfragen in folgenden Formaten erstellen (Multiple Choice, Single Choice oder offene Fragen)',
     },
     uml: {
       description:
