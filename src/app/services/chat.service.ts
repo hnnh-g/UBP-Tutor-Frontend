@@ -66,10 +66,18 @@ export class ChatService {
     if (request.task_type === 'model_generation') {
         this.api.sendMessage(request).subscribe({
         next: (response) => {
+          // Use structured diagramData if backend provides it, otherwise extract from content string
+          if (response.diagramData) {
+            this.currentDiagram.set(response.diagramData);
+          } else {
+            this.extractDiagram(response.content);
+          }
+          // Show diagram as a fenced code block in chat; wrap raw content if not already fenced
+          const chatContent = this.wrapDiagramContent(response.content);
           this.messages.update((msgs) =>
             msgs.map((m) =>
               m.id === tutorMsgId
-                ? { ...m, content: response.content, isStreaming: false }
+                ? { ...m, content: chatContent, isStreaming: false }
                 : m,
             ),
           );
@@ -110,13 +118,13 @@ export class ChatService {
           this.isStreaming.set(false);
         },
         complete: () => {
+          this.extractDiagram(accumulatedContent);
           this.messages.update((msgs) =>
             msgs.map((m) =>
-              m.id === tutorMsgId ? { ...m, isStreaming: false } : m,
+              m.id === tutorMsgId ? { ...m, content: accumulatedContent, isStreaming: false } : m,
             ),
           );
           this.isStreaming.set(false);
-          this.extractDiagram(accumulatedContent);
         },
       });
     }
@@ -142,17 +150,59 @@ export class ChatService {
     this.streamSub?.unsubscribe();
   }
 
-  private extractDiagram(content: string): void {
-    const bpmnMatch = content.match(/```bpmn\n([\s\S]+?)```/);
-    const pumlMatch = content.match(/```(?:plantuml|uml)\n([\s\S]+?)```/);
-    const pnmlMatch = content.match(/```(?:pnml|petri-net)\n([\s\S]+?)```/);
+  private extractDiagram(content: string): boolean {
+    const trimmed = content.trim();
 
-    if (bpmnMatch) {
-      this.currentDiagram.set({ type: 'bpmn', content: bpmnMatch[1] });
-    } else if (pumlMatch) {
-      this.currentDiagram.set({ type: 'uml', content: pumlMatch[1] });
-    } else if (pnmlMatch) {
-      this.currentDiagram.set({ type: 'petri-net', content: pnmlMatch[1] });
+    // Fenced code blocks (explicit diagram type)
+    const pumlFenced = content.match(/```(?:plantuml|uml)\n([\s\S]+?)```/);
+    const bpmnFenced = content.match(/```(?:bpmn|xml)\n([\s\S]+?)```/);
+    const pnmlFenced = content.match(/```(?:pnml|petri-net)\n([\s\S]+?)```/);
+
+    if (pumlFenced) {
+      this.currentDiagram.set({ type: 'uml', content: pumlFenced[1] });
+      return true;
     }
+    if (bpmnFenced && this.looksLikeBpmn(bpmnFenced[1])) {
+      this.currentDiagram.set({ type: 'bpmn', content: bpmnFenced[1] });
+      return true;
+    }
+    if (pnmlFenced) {
+      this.currentDiagram.set({ type: 'petri-net', content: pnmlFenced[1] });
+      return true;
+    }
+
+    // Raw diagram content (no fences)
+    if (trimmed.startsWith('@startuml')) {
+      this.currentDiagram.set({ type: 'uml', content: trimmed });
+      return true;
+    }
+    if (trimmed.startsWith('<pnml') || trimmed.includes('\n<pnml')) {
+      this.currentDiagram.set({ type: 'petri-net', content: trimmed });
+      return true;
+    }
+    if (this.looksLikeBpmn(trimmed)) {
+      this.currentDiagram.set({ type: 'bpmn', content: trimmed });
+      return true;
+    }
+
+    return false;
+  }
+
+  private looksLikeBpmn(text: string): boolean {
+    return text.includes('<definitions') ||
+           text.includes('<bpmn:definitions') ||
+           (text.startsWith('<?xml') && text.includes('bpmn'));
+  }
+
+  private wrapDiagramContent(content: string): string {
+    const trimmed = content.trim();
+    // Already has fenced blocks — return as-is so formatContent renders them
+    if (/^```[\w]/.test(trimmed)) return content;
+    // Wrap raw diagram content in an appropriate fence
+    if (trimmed.startsWith('@startuml')) return '```plantuml\n' + trimmed + '\n```';
+    if (this.looksLikeBpmn(trimmed)) return '```xml\n' + trimmed + '\n```';
+    if (trimmed.startsWith('<pnml') || trimmed.includes('\n<pnml'))
+      return '```xml\n' + trimmed + '\n```';
+    return content;
   }
 }

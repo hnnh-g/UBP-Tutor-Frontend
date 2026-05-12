@@ -19,12 +19,30 @@ export class VisualizationPanelComponent implements OnDestroy {
   protected translation = inject(TranslationService);
   protected uiState = inject(UIStateService);
 
+  private _petriCanvasRef?: ElementRef<HTMLDivElement>;
   @ViewChild('petriCanvas', { static: false })
-  private petriCanvasRef!: ElementRef<HTMLDivElement>;
+  set petriCanvasRef(ref: ElementRef<HTMLDivElement>) {
+    this._petriCanvasRef = ref;
+    if (ref) {
+      const diagram = this.chat.currentDiagram();
+      if (diagram?.type === 'petri-net') {
+        setTimeout(() => this.renderPetriNet(diagram.content), 0);
+      }
+    }
+  }
   private petriViewer?: cytoscape.Core;
 
+  private _canvasRef?: ElementRef<HTMLDivElement>;
   @ViewChild('canvas', {static: false})
-  private canvasRef!: ElementRef<HTMLDivElement>;
+  set canvasRef(ref: ElementRef<HTMLDivElement>) {
+    this._canvasRef = ref;
+    if (ref) {
+      const diagram = this.chat.currentDiagram();
+      if (diagram?.type === 'bpmn') {
+        setTimeout(() => this.renderBpmn(diagram.content), 0);
+      }
+    }
+  }
   private viewer?: BpmnViewer;
   private readonly plantumlServer = 'http://localhost:8081';
 
@@ -49,9 +67,13 @@ export class VisualizationPanelComponent implements OnDestroy {
         if (diagram.type === 'petri-net') this.panelHeight.set(400);
       }
       if (diagram?.type === 'bpmn') {
-        setTimeout(() => this.renderBpmn(diagram.content), 0);
+        this.petriViewer?.destroy();
+        this.petriViewer = undefined;
+        if (this._canvasRef) setTimeout(() => this.renderBpmn(diagram.content), 0);
       } else if (diagram?.type === 'petri-net') {
-        setTimeout(() => this.renderPetriNet(diagram.content), 0);
+        this.viewer?.destroy();
+        this.viewer = undefined;
+        if (this._petriCanvasRef) setTimeout(() => this.renderPetriNet(diagram.content), 0);
       } else {
         this.destroyViewer();
       }
@@ -62,19 +84,45 @@ export class VisualizationPanelComponent implements OnDestroy {
     this.destroyViewer();
   }
 
+  private preprocessBpmnXml(xml: string): string {
+    // Correction for when backend emits wrong namespace URIs for dc: and di: prefixes
+    xml = xml.replace(
+      /xmlns:dc="http:\/\/www\.omg\.org\/spec\/BPMN\/20100524\/DC"/g,
+      'xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"',
+    );
+    xml = xml.replace(
+      /xmlns:di="http:\/\/www\.omg\.org\/spec\/BPMN\/20100524\/DI"/g,
+      'xmlns:di="http://www.omg.org/spec/DD/20100524/DI"',
+    );
+    // Add bpmnElement to BPMNPlane if missing (required by bpmn-js)
+    if (/<bpmndi:BPMNPlane(?![^>]*bpmnElement)/.test(xml)) {
+      const processMatch = xml.match(/<bpmn:process[^>]+id="([^"]+)"/);
+      if (processMatch) {
+        xml = xml.replace(
+          /<bpmndi:BPMNPlane(?![^>]*bpmnElement)/,
+          `<bpmndi:BPMNPlane bpmnElement="${processMatch[1]}"`,
+        );
+      }
+    }
+    return xml;
+  }
+
   private async renderBpmn(xml: string): Promise<void> {
-    if (!this.canvasRef) return;
+    if (!this._canvasRef) return;
+    if (this._canvasRef.nativeElement.offsetWidth === 0) {
+      requestAnimationFrame(() => this.renderBpmn(xml));
+      return;
+    }
     if (!this.viewer) {
-      this.viewer = new BpmnViewer({container: this.canvasRef.nativeElement});
+      this.viewer = new BpmnViewer({container: this._canvasRef.nativeElement});
     }
     this.isRendering.set(true);
     try {
-      await this.viewer.importXML(xml);
+      await this.viewer.importXML(this.preprocessBpmnXml(xml));
       const canvas = this.viewer.get('canvas') as any;
-      (this.viewer.get('canvas') as any).zoom('fit-viewport');
-
+      canvas.zoom('fit-viewport');
       const { inner } = canvas.viewbox();
-      const containerWidth = this.canvasRef.nativeElement.offsetWidth;
+      const containerWidth = this._canvasRef.nativeElement.offsetWidth;
       const natural = Math.round(containerWidth * (inner.height / inner.width));
       this.panelHeight.set(Math.min(600, Math.max(200, natural)));
     } catch (err) {
@@ -85,7 +133,11 @@ export class VisualizationPanelComponent implements OnDestroy {
   }
 
   private renderPetriNet(xml: string): void {
-  if (!this.petriCanvasRef) return;
+  if (!this._petriCanvasRef) return;
+  if (this._petriCanvasRef.nativeElement.offsetWidth === 0) {
+    requestAnimationFrame(() => this.renderPetriNet(xml));
+    return;
+  }
 
   this.petriViewer?.destroy();
   this.petriViewer = undefined;
@@ -122,7 +174,7 @@ export class VisualizationPanelComponent implements OnDestroy {
   const hasPositions = nodes.some(n => n.position);
 
   this.petriViewer = cytoscape({
-    container: this.petriCanvasRef.nativeElement,
+    container: this._petriCanvasRef.nativeElement,
     elements: { nodes, edges },
     layout: hasPositions
       ? { name: 'preset' }
@@ -149,7 +201,7 @@ export class VisualizationPanelComponent implements OnDestroy {
 
   const bb = this.petriViewer.elements().boundingBox({});
   if (bb.w > 0 && bb.h > 0) {
-    const containerWidth = this.petriCanvasRef.nativeElement.offsetWidth;
+    const containerWidth = this._petriCanvasRef.nativeElement.offsetWidth;
     const natural = Math.round(containerWidth * (bb.h / bb.w));
     this.panelHeight.set(Math.min(800, Math.max(350, natural)));
   }

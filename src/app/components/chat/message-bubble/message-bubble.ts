@@ -36,11 +36,23 @@ export class MessageBubbleComponent {
   }
 
   formatContent(content: string): string {
+    const escapeHtml = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // Split on fenced code blocks so newlines and HTML chars inside them are preserved
     return content
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/`([^`]+)`/g, '<code class="bg-slate-100 text-slate-800 px-1 py-0.5 rounded text-sm font-mono">$1</code>')
-      .replace(/```[\w]*\n?([\s\S]+?)```/g, '<pre class="bg-slate-900 text-slate-100 p-3 rounded-lg my-2 overflow-x-auto text-sm font-mono whitespace-pre-wrap"><code>$1</code></pre>')
-      .replace(/\n/g, '<br>');
+      .split(/(```[\w]*\n?[\s\S]+?```)/g)
+      .map((part, i) => {
+        if (i % 2 === 1) {
+          const code = part.replace(/^```[\w]*\n?/, '').replace(/```$/, '');
+          return `<pre class="bg-slate-900 text-slate-100 p-3 rounded-lg my-2 overflow-x-auto text-sm font-mono whitespace-pre-wrap"><code>${escapeHtml(code)}</code></pre>`;
+        }
+        return part
+          .replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*([\s\S]+?)\*/g, '<em>$1</em>')
+          .replace(/`([^`]+)`/g, '<code class="bg-slate-100 text-slate-800 px-1 py-0.5 rounded text-sm font-mono">$1</code>')
+          .replace(/\n/g, '<br>');
+      })
+      .join('');
   }
 }
