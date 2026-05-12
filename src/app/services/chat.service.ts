@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Message, ChatRequest, DiagramData, detectTaskType } from '../models';
+import { Message, ChatRequest, DiagramData } from '../models';
 import { ApiService } from './api.service';
 import { UIStateService } from './ui-state.service';
 import { SnackbarService } from './snackbar.service';
@@ -22,25 +22,19 @@ export class ChatService {
   private cancelFn: (() => void) | null = null;
 
   constructor() {
-  fetch('/assets/example-diagrams/petri-net.pnml')
-    .then(r => r.text())
-    .then(xml => this.currentDiagram.set({ type: 'petri-net', content: xml }));
 }
 
   sendMessage(text: string): void {
     if (!text.trim() || this.isStreaming()) return;
 
-    const detectedType = detectTaskType(text);
-    if (detectedType) this.uiState.setTaskType(detectedType);
-
-    console.log(detectedType);
+    const taskType = this.uiState.currentTaskType();
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
       role: 'user',
       content: text.trim(),
       timestamp: new Date(),
-      taskType: this.uiState.currentTaskType(),
+      taskType,
       uploadedFile: this.uiState.uploadedFile() ?? undefined,
     };
 
@@ -53,7 +47,7 @@ export class ChatService {
       role: 'tutor',
       content: '',
       timestamp: new Date(),
-      taskType: this.uiState.currentTaskType(),
+      taskType,
       isStreaming: true,
     };
     this.messages.update((msgs) => [...msgs, tutorMessage]);
@@ -61,7 +55,7 @@ export class ChatService {
 
     const request: ChatRequest = {
       message: text.trim(),
-      task_type: this.uiState.currentTaskType(),
+      task_type: taskType,
       session_id: this.conversationId() ?? undefined,
       metadata: {
         language: this.translation.language(),
