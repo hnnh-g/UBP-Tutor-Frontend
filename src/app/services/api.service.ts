@@ -4,9 +4,11 @@ import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import {
+  AdminUserResponse,
   ChatRequest,
   ChatResponse,
   HealthResponse,
+  StatusResponse,
   UserPreferences,
 } from '../models';
 import { AuthService } from './auth.service';
@@ -24,7 +26,19 @@ export class ApiService {
 
   getHealth(): Observable<HealthResponse> {
     return this.http.get<HealthResponse>(`${this.apiUrl}/health`).pipe(
-      catchError(() => of({ status: 'error' as const, message: 'Cannot reach backend' })),
+      catchError(() => of({ status: 'unhealthy', message: 'Cannot reach backend' })),
+    );
+  }
+
+  getStatus(): Observable<StatusResponse> {
+    return this.http.get<StatusResponse>(`${this.apiUrl}/status`).pipe(
+      catchError((err) => this.handleError(err)),
+    );
+  }
+
+  getAdminUsers(): Observable<AdminUserResponse> {
+    return this.http.get<AdminUserResponse>(`${this.apiUrl}/admin/users`).pipe(
+      catchError((err) => this.handleError(err)),
     );
   }
 
@@ -48,6 +62,8 @@ export class ApiService {
 
   streamMessage(request: ChatRequest): Observable<string> {
     return new Observable<string>((observer) => {
+      const controller = new AbortController();
+
       this.auth.getToken().then((token) => {
         fetch(`${this.apiUrl}/chat/stream`, {
           method: 'POST',
@@ -56,6 +72,7 @@ export class ApiService {
             'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify(request),
+          signal: controller.signal,
         })
           .then(async (response) => {
             if (!response.ok || !response.body) {
@@ -104,10 +121,14 @@ export class ApiService {
               }
             }
           })
-          .catch((error) => observer.error(error));
+          .catch((error) => {
+            if (error.name === 'AbortError') return;
+            observer.error(error);
+          });
       });
 
-      return () => {};
+      // Teardown: abort the in-flight fetch so the backend receives a disconnect
+      return () => controller.abort();
     });
   }
 

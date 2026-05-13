@@ -10,133 +10,230 @@
         <div class="mb-8 flex items-center justify-between">
           <div>
             <h1 class="text-2xl font-bold text-slate-900">{{ translation.t().admin.title }}</h1>
-            <p class="text-slate-500 mt-1 text-sm">System administration and monitoring.</p>
+            <p class="text-slate-500 mt-1 text-sm">{{ translation.t().admin.subtitle }}</p>
           </div>
-          <span class="badge badge-blue">Admin</span>
+          <span class="badge badge-blue">{{ translation.t().nav.admin }}</span>
         </div>
 
         <!-- Stats Row -->
-        <div class="grid grid-cols-3 gap-4 mb-6">
-          @for (stat of [
-            { label: 'Total Users', value: mockUsers.length, icon: '👥' },
-            { label: 'Active Sessions', value: 3, icon: '⚡' },
-            { label: 'System Status', value: health.status(), icon: '🖥' }
-          ]; track stat.label) {
-            <div class="card p-4">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-2xl">{{ stat.icon }}</span>
-                <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Live</span>
-              </div>
-              <p class="text-2xl font-bold text-slate-800">{{ stat.value }}</p>
-              <p class="text-xs text-slate-500 mt-0.5">{{ stat.label }}</p>
+        <div class="grid grid-cols-4 gap-4 mb-6">
+
+          <div class="card p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl">👥</span>
+              <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Keycloak</span>
             </div>
-          }
+            <p class="text-2xl font-bold text-slate-800">
+              {{ adminUsers.data()?.total_users ?? '—' }}
+            </p>
+            <p class="text-xs text-slate-500 mt-0.5">{{ translation.t().admin.totalUsers }}</p>
+          </div>
+
+          <div class="card p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl">🔐</span>
+              <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Keycloak</span>
+            </div>
+            <p class="text-2xl font-bold text-slate-800">
+              {{ adminUsers.data()?.active_sessions ?? '—' }}
+            </p>
+            <p class="text-xs text-slate-500 mt-0.5">{{ translation.t().admin.activeSessions }}</p>
+          </div>
+
+          <div class="card p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl">⚡</span>
+              <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Live</span>
+            </div>
+            <p class="text-2xl font-bold text-slate-800">
+              {{ statusSvc.data()?.active_requests ?? '—' }}
+            </p>
+            <p class="text-xs text-slate-500 mt-0.5">{{ translation.t().admin.activeRequests }}</p>
+          </div>
+
+          <div class="card p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl">🖥</span>
+              <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Live</span>
+            </div>
+            <p class="text-2xl font-bold capitalize"
+              [class.text-green-600]="health.status() === 'ready'"
+              [class.text-amber-500]="health.status() === 'generating'"
+              [class.text-red-600]="health.status() === 'error'"
+            >
+              {{ translation.t().status[health.status()] }}
+            </p>
+            <p class="text-xs text-slate-500 mt-0.5">{{ translation.t().admin.systemStatus }}</p>
+          </div>
+
         </div>
 
         <div class="grid grid-cols-2 gap-6">
 
           <!-- User Management -->
           <div class="card p-6">
-            <h2 class="text-base font-semibold text-slate-800 mb-4">{{ translation.t().admin.users }}</h2>
-            <div class="space-y-2">
-              @for (user of mockUsers; track user.username) {
-                <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-                  <div class="flex items-center gap-3">
-                    <div
-                      class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold"
-                      [class.bg-brand-100]="user.role === 'student'"
-                      [class.text-brand-700]="user.role === 'student'"
-                      [class.bg-violet-100]="user.role === 'teacher'"
-                      [class.text-violet-700]="user.role === 'teacher'"
-                      [class.bg-red-100]="user.role === 'admin'"
-                      [class.text-red-700]="user.role === 'admin'"
-                    >
-                      {{ user.username[0].toUpperCase() }}
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-slate-700">{{ user.username }}</p>
-                      <p class="text-xs text-slate-400">{{ user.email }}</p>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span
-                      class="badge capitalize text-xs"
-                      [class.badge-blue]="user.role === 'student'"
-                      [class.badge-green]="user.role === 'teacher'"
-                      [class.badge-red]="user.role === 'admin'"
-                    >
-                      {{ user.role }}
-                    </span>
-                    <span
-                      class="w-1.5 h-1.5 rounded-full"
-                      [class.bg-green-500]="user.active"
-                      [class.bg-slate-300]="!user.active"
-                    ></span>
-                  </div>
-                </div>
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-base font-semibold text-slate-800">{{ translation.t().admin.users }}</h2>
+              @if (adminUsers.data()) {
+                <span class="text-xs text-slate-400">
+                  {{ adminUsers.data()!.total_users }} {{ translation.t().admin.total }}
+                </span>
               }
             </div>
+
+            @if (adminUsers.loading() && !adminUsers.data()) {
+              <p class="text-sm text-slate-400">{{ translation.t().admin.loading }}</p>
+            } @else if (adminUsers.error() && !adminUsers.data()) {
+              <p class="text-sm text-red-500">{{ translation.t().admin.errorLoading }}</p>
+            } @else {
+              <div class="space-y-2 max-h-72 overflow-y-auto">
+                @for (user of adminUsers.data()?.users ?? []; track user.id) {
+                  <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                    <div class="flex items-center gap-3 min-w-0">
+                      <div
+                        class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
+                        [class.bg-brand-100]="user.roles.includes('STUDENT') || user.roles.includes('student')"
+                        [class.text-brand-700]="user.roles.includes('STUDENT') || user.roles.includes('student')"
+                        [class.bg-violet-100]="user.roles.includes('TEACHER') || user.roles.includes('teacher')"
+                        [class.text-violet-700]="user.roles.includes('TEACHER') || user.roles.includes('teacher')"
+                        [class.bg-red-100]="user.roles.includes('ADMIN') || user.roles.includes('admin')"
+                        [class.text-red-700]="user.roles.includes('ADMIN') || user.roles.includes('admin')"
+                        [class.bg-slate-100]="user.roles.length === 0"
+                        [class.text-slate-500]="user.roles.length === 0"
+                      >
+                        {{ user.username[0]?.toUpperCase() ?? '?' }}
+                      </div>
+                      <div class="min-w-0">
+                        <p class="text-sm font-medium text-slate-700 truncate">{{ user.username }}</p>
+                        <p class="text-xs text-slate-400 truncate">{{ user.email ?? '—' }}</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0 ml-2">
+                      @for (role of user.roles; track role) {
+                        <span
+                          class="badge capitalize text-xs"
+                          [class.badge-blue]="role.toLowerCase() === 'student'"
+                          [class.badge-green]="role.toLowerCase() === 'teacher'"
+                          [class.badge-red]="role.toLowerCase() === 'admin'"
+                        >
+                          {{ translateRole(role) }}
+                        </span>
+                      }
+                      <span
+                        class="w-1.5 h-1.5 rounded-full"
+                        [class.bg-green-500]="user.enabled"
+                        [class.bg-slate-300]="!user.enabled"
+                        [title]="user.enabled ? translation.t().admin.enabled : translation.t().admin.disabled"
+                      ></span>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Roles distribution -->
+              @if (rolesDistribution().length > 0) {
+                <div class="mt-4 pt-4 border-t border-slate-100 flex gap-3 flex-wrap">
+                  @for (entry of rolesDistribution(); track entry.role) {
+                    <span class="text-xs text-slate-500">
+                      <span class="font-medium text-slate-700">{{ entry.count }}</span>
+                      {{ translateRole(entry.role) }}
+                    </span>
+                  }
+                </div>
+              }
+            }
           </div>
 
           <!-- System Status -->
           <div class="card p-6">
             <h2 class="text-base font-semibold text-slate-800 mb-4">{{ translation.t().admin.systemStatus }}</h2>
-            <div class="space-y-3">
-              @for (service of [
-                { name: 'API Backend', status: health.status() },
-                { name: 'Keycloak Auth', status: 'ready' },
-                { name: 'Chat Service', status: health.status() },
-                { name: 'Diagram Renderer', status: 'ready' }
-              ]; track service.name) {
-                <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-                  <span class="text-sm text-slate-700">{{ service.name }}</span>
-                  <div class="flex items-center gap-2">
-                    <span
-                      class="w-2 h-2 rounded-full"
-                      [class.bg-green-500]="service.status === 'ready'"
-                      [class.bg-amber-400]="service.status === 'generating'"
-                      [class.bg-red-500]="service.status === 'error'"
+
+            @if (statusSvc.loading() && !statusSvc.data()) {
+              <p class="text-sm text-slate-400">{{ translation.t().admin.loading }}</p>
+            } @else if (statusSvc.error() && !statusSvc.data()) {
+              <p class="text-sm text-red-500">{{ translation.t().admin.errorLoading }}</p>
+            } @else {
+              <!-- Component Health -->
+              <div class="space-y-3 mb-6">
+                @for (component of componentEntries(); track component.name) {
+                  <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                    <div>
+                      <span class="text-sm text-slate-700 capitalize">{{ component.name }}</span>
+                      @if (component.detail) {
+                        <p class="text-xs text-slate-400 mt-0.5">{{ component.detail }}</p>
+                      }
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full"
+                        [class.bg-green-500]="component.reachable"
+                        [class.bg-red-500]="!component.reachable"
+                      ></span>
+                      <span class="text-xs"
+                        [class.text-green-600]="component.reachable"
+                        [class.text-red-600]="!component.reachable"
+                      >
+                        {{ component.reachable ? translation.t().admin.reachable : translation.t().admin.unreachable }}
+                      </span>
+                    </div>
+                  </div>
+                }
+                @if (componentEntries().length === 0) {
+                  <p class="text-sm text-slate-400">{{ translation.t().admin.noComponentData }}</p>
+                }
+              </div>
+
+              <!-- Active model + streaming -->
+              <div class="space-y-2 pt-4 border-t border-slate-100">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-slate-500">{{ translation.t().admin.activeModel }}</span>
+                  <span class="font-medium text-slate-700 truncate max-w-40" [title]="statusSvc.data()?.active_model ?? ''">
+                    {{ statusSvc.data()?.active_model ?? '—' }}
+                  </span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-slate-500">{{ translation.t().admin.streaming }}</span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full"
+                      [class.bg-green-500]="statusSvc.data()?.streaming_active"
+                      [class.bg-slate-300]="!statusSvc.data()?.streaming_active"
                     ></span>
-                    <span
-                      class="text-xs capitalize"
-                      [class.text-green-600]="service.status === 'ready'"
-                      [class.text-amber-600]="service.status === 'generating'"
-                      [class.text-red-600]="service.status === 'error'"
+                    <span class="text-xs"
+                      [class.text-green-600]="statusSvc.data()?.streaming_active"
+                      [class.text-slate-400]="!statusSvc.data()?.streaming_active"
                     >
-                      {{ service.status }}
+                      {{ statusSvc.data()?.streaming_active ? translation.t().admin.active : translation.t().admin.inactive }}
                     </span>
                   </div>
                 </div>
-              }
-            </div>
-          </div>
-        </div>
-
-        <!-- Activity Logs placeholder -->
-        <div class="card p-6 mt-6">
-          <h2 class="text-base font-semibold text-slate-800 mb-4">{{ translation.t().admin.logs }}</h2>
-          <div class="bg-slate-900 rounded-xl p-4 font-mono text-xs space-y-1">
-            @for (log of [
-              { ts: '2026-05-05 08:31:12', level: 'INFO', msg: 'User student123 logged in' },
-              { ts: '2026-05-05 08:31:45', level: 'INFO', msg: 'Chat session started: model-generation' },
-              { ts: '2026-05-05 08:32:10', level: 'INFO', msg: 'Diagram generated: BPMN (order-process)' },
-              { ts: '2026-05-05 08:33:02', level: 'WARN', msg: 'Health check: backend latency 320ms' },
-              { ts: '2026-05-05 08:34:55', level: 'INFO', msg: 'User prof.mueller logged in' }
-            ]; track log.ts) {
-              <div class="flex gap-3">
-                <span class="text-slate-500">{{ log.ts }}</span>
-                <span
-                  [class.text-brand-400]="log.level === 'INFO'"
-                  [class.text-amber-400]="log.level === 'WARN'"
-                  [class.text-red-400]="log.level === 'ERROR'"
-                >
-                  [{{ log.level }}]
-                </span>
-                <span class="text-slate-300">{{ log.msg }}</span>
               </div>
             }
           </div>
         </div>
+
+        <!-- Available Agents -->
+        <div class="card p-6 mt-6">
+          <h2 class="text-base font-semibold text-slate-800 mb-4">{{ translation.t().admin.availableAgents }}</h2>
+          @if (statusSvc.loading() && !statusSvc.data()) {
+            <p class="text-sm text-slate-400">{{ translation.t().admin.loading }}</p>
+          } @else {
+            <div class="grid grid-cols-3 gap-4">
+              @for (agent of statusSvc.data()?.available_agents ?? []; track agent.name) {
+                <div class="border border-slate-100 rounded-lg p-4">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <p class="text-sm font-medium text-slate-700">{{ agent.name }}</p>
+                  </div>
+                  <div class="flex flex-wrap gap-1">
+                    @for (task of agent.task_types; track task) {
+                      <span class="badge badge-blue text-xs">{{ translateTaskType(task) }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
       </div>
     </main>
   </div>
