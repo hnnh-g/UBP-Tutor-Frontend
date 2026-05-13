@@ -9,6 +9,7 @@ import { TranslationService } from '../../services/translation.service';
 import { UIStateService } from '../../services/ui-state.service';
 import { HealthService } from '../../services/health.service';
 import { PreferencesService } from '../../services/preferences.service';
+import { ChatService } from '../../services/chat.service';
 
 @Component({
   selector: 'app-tutor',
@@ -27,6 +28,7 @@ import { PreferencesService } from '../../services/preferences.service';
 export class TutorPage implements OnInit, OnDestroy {
   protected translation = inject(TranslationService);
   protected uiState = inject(UIStateService);
+  protected chat = inject(ChatService);
   private health = inject(HealthService);
   private preferences = inject(PreferencesService);
 

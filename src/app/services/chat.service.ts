@@ -18,16 +18,15 @@ export class ChatService {
   readonly currentDiagram = signal<DiagramData | null>(null);
   readonly conversationId = signal<string | null>(null);
 
-  private streamSub: Subscription | null = null;
-  private cancelFn: (() => void) | null = null;
-
-  constructor() {
-}
+  private pendingSub: Subscription | null = null;
 
   sendMessage(text: string): void {
     if (!text.trim() || this.isStreaming()) return;
 
+    this.currentDiagram.set(null);
+
     const taskType = this.uiState.currentTaskType();
+    const uploadedFile = this.uiState.uploadedFile();
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
@@ -35,87 +34,74 @@ export class ChatService {
       content: text.trim(),
       timestamp: new Date(),
       taskType,
-      uploadedFile: this.uiState.uploadedFile() ?? undefined,
+      uploadedFile: uploadedFile ?? undefined,
     };
 
     this.messages.update((msgs) => [...msgs, userMessage]);
     this.uiState.clearUploadedFile();
 
     const tutorMsgId = crypto.randomUUID();
-    const tutorMessage: Message = {
-      id: tutorMsgId,
-      role: 'tutor',
-      content: '',
-      timestamp: new Date(),
-      taskType,
-      isStreaming: true,
-    };
-    this.messages.update((msgs) => [...msgs, tutorMessage]);
+    this.messages.update((msgs) => [
+      ...msgs,
+      { id: tutorMsgId, role: 'tutor', content: '', timestamp: new Date(), taskType, isStreaming: true },
+    ]);
     this.isStreaming.set(true);
 
+    // Append file content to the prompt so the backend LLM can see it
+    let backendMessage = text.trim();
+    if (uploadedFile?.content) {
+      backendMessage = `${text.trim()}\n\n[Attached file: ${uploadedFile.name}]\n\`\`\`\n${uploadedFile.content}\n\`\`\``;
+    }
+
     const request: ChatRequest = {
-      message: text.trim(),
+      message: backendMessage,
       task_type: taskType,
       session_id: this.conversationId() ?? undefined,
-      metadata: {
-        language: this.translation.language(),
-        uploadedFile: userMessage.uploadedFile,
-      },
+      metadata: { language: this.translation.language() },
     };
 
-    if (request.task_type === 'model_generation') {
-        this.api.sendMessage(request).subscribe({
+    if (taskType === 'model_generation') {
+      this.pendingSub = this.api.sendMessage(request).subscribe({
         next: (response) => {
-          // Use structured diagramData if backend provides it, otherwise extract from content string
-          if (response.diagramData) {
-            this.currentDiagram.set(response.diagramData);
+          const diagramFound = response.diagramData
+            ? (this.currentDiagram.set(response.diagramData), true)
+            : this.extractDiagram(response.content);
+
+          if (!diagramFound) {
+            // Model responded but produced no diagram
+            this.messages.update((msgs) =>
+              msgs.map((m) =>
+                m.id === tutorMsgId
+                  ? { ...m, content: this.translation.t().errors.diagramFailed, isStreaming: false, isError: true }
+                  : m,
+              ),
+            );
           } else {
-            this.extractDiagram(response.content);
+            const chatContent = this.wrapDiagramContent(response.content);
+            this.messages.update((msgs) =>
+              msgs.map((m) =>
+                m.id === tutorMsgId ? { ...m, content: chatContent, isStreaming: false } : m,
+              ),
+            );
           }
-          // Show diagram as a fenced code block in chat; wrap raw content if not already fenced
-          const chatContent = this.wrapDiagramContent(response.content);
-          this.messages.update((msgs) =>
-            msgs.map((m) =>
-              m.id === tutorMsgId
-                ? { ...m, content: chatContent, isStreaming: false }
-                : m,
-            ),
-          );
           this.isStreaming.set(false);
         },
         error: () => {
-          this.messages.update((msgs) =>
-            msgs.map((m) =>
-              m.id === tutorMsgId
-                ? { ...m, content: 'An error occurred. Please try again.', isStreaming: false }
-                : m,
-            ),
-          );
-          this.isStreaming.set(false);
+          this.setErrorMessage(tutorMsgId);
         },
       });
-    }
-    else {
+    } else {
       let accumulatedContent = '';
 
-      this.streamSub = this.api.streamMessage(request).subscribe({
+      this.pendingSub = this.api.streamMessage(request).subscribe({
         next: (chunk) => {
           accumulatedContent += chunk;
           this.messages.update((msgs) =>
-            msgs.map((m) =>
-              m.id === tutorMsgId ? { ...m, content: accumulatedContent } : m,
-            ),
+            msgs.map((m) => (m.id === tutorMsgId ? { ...m, content: accumulatedContent } : m)),
           );
         },
-        error: (err) => {
-          this.messages.update((msgs) =>
-            msgs.map((m) =>
-              m.id === tutorMsgId
-                ? { ...m, content: 'An error occurred. Please try again.', isStreaming: false }
-                : m,
-            ),
-          );
-          this.isStreaming.set(false);
+        error: () => {
+          this.setErrorMessage(tutorMsgId);
         },
         complete: () => {
           this.extractDiagram(accumulatedContent);
@@ -131,29 +117,36 @@ export class ChatService {
   }
 
   cancelGeneration(): void {
-    this.streamSub?.unsubscribe();
-    this.streamSub = null;
-    this.messages.update((msgs) =>
-      msgs.map((m) =>
-        m.isStreaming ? { ...m, isStreaming: false } : m,
-      ),
-    );
+    this.pendingSub?.unsubscribe();
+    this.pendingSub = null;
+    this.messages.update((msgs) => msgs.map((m) => (m.isStreaming ? { ...m, isStreaming: false } : m)));
     this.isStreaming.set(false);
     this.snackbar.info(this.translation.t().errors.cancelled);
   }
 
   clearHistory(): void {
+    this.pendingSub?.unsubscribe();
+    this.pendingSub = null;
     this.messages.set([]);
     this.currentDiagram.set(null);
     this.conversationId.set(null);
     this.isStreaming.set(false);
-    this.streamSub?.unsubscribe();
+  }
+
+  private setErrorMessage(tutorMsgId: string): void {
+    this.messages.update((msgs) =>
+      msgs.map((m) =>
+        m.id === tutorMsgId
+          ? { ...m, content: this.translation.t().errors.generationFailed, isStreaming: false, isError: true }
+          : m,
+      ),
+    );
+    this.isStreaming.set(false);
   }
 
   private extractDiagram(content: string): boolean {
     const trimmed = content.trim();
 
-    // Fenced code blocks (explicit diagram type)
     const pumlFenced = content.match(/```(?:plantuml|uml)\n([\s\S]+?)```/);
     const bpmnFenced = content.match(/```(?:bpmn|xml)\n([\s\S]+?)```/);
     const pnmlFenced = content.match(/```(?:pnml|petri-net)\n([\s\S]+?)```/);
@@ -171,7 +164,6 @@ export class ChatService {
       return true;
     }
 
-    // Raw diagram content (no fences)
     if (trimmed.startsWith('@startuml')) {
       this.currentDiagram.set({ type: 'uml', content: trimmed });
       return true;
@@ -189,16 +181,16 @@ export class ChatService {
   }
 
   private looksLikeBpmn(text: string): boolean {
-    return text.includes('<definitions') ||
-           text.includes('<bpmn:definitions') ||
-           (text.startsWith('<?xml') && text.includes('bpmn'));
+    return (
+      text.includes('<definitions') ||
+      text.includes('<bpmn:definitions') ||
+      (text.startsWith('<?xml') && text.includes('bpmn'))
+    );
   }
 
   private wrapDiagramContent(content: string): string {
     const trimmed = content.trim();
-    // Already has fenced blocks — return as-is so formatContent renders them
     if (/^```[\w]/.test(trimmed)) return content;
-    // Wrap raw diagram content in an appropriate fence
     if (trimmed.startsWith('@startuml')) return '```plantuml\n' + trimmed + '\n```';
     if (this.looksLikeBpmn(trimmed)) return '```xml\n' + trimmed + '\n```';
     if (trimmed.startsWith('<pnml') || trimmed.includes('\n<pnml'))

@@ -28,6 +28,7 @@ export interface Message {
   taskType?: TaskType;
   diagramData?: DiagramData;
   isStreaming?: boolean;
+  isError?: boolean;
   uploadedFile?: UploadedFile;
 }
 
@@ -70,10 +71,45 @@ export interface SnackbarMessage {
   duration?: number;
 }
 
+export interface ComponentHealth {
+  reachable: boolean;
+  detail?: string;
+}
+
+export interface AgentInfo {
+  name: string;
+  task_types: string[];
+}
+
 export interface HealthResponse {
-  status: SystemStatus;
+  status: string; // backend: 'healthy' | 'degraded' | 'unhealthy'
+  components?: Record<string, ComponentHealth>;
   message?: string;
   timestamp?: string;
+}
+
+export interface StatusResponse {
+  active_model: string;
+  active_requests: number;
+  streaming_active: boolean;
+  available_agents: AgentInfo[];
+  components: Record<string, ComponentHealth>;
+}
+
+export interface UserAdminInfo {
+  id: string;
+  username: string;
+  email?: string;
+  roles: string[];
+  enabled: boolean;
+  last_login?: string; // milliseconds since epoch as string
+}
+
+export interface AdminUserResponse {
+  total_users: number;
+  active_sessions: number;
+  roles_distribution: Record<string, number>;
+  users: UserAdminInfo[];
 }
 
 export interface TaskTypeOption {

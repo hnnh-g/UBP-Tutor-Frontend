@@ -45,6 +45,13 @@
         <!-- Visualization Panel -->
         <app-visualization-panel />
 
+        <!-- Generation progress bar -->
+        @if (chat.isStreaming()) {
+          <div class="h-0.5 bg-brand-100 overflow-hidden flex-shrink-0">
+            <div class="h-full w-1/3 bg-brand-500 rounded-full generation-progress"></div>
+          </div>
+        }
+
         <!-- Input Bar -->
         <app-input-bar />
       </div>

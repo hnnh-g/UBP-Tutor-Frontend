@@ -17,6 +17,10 @@ export class MessageBubbleComponent {
     return this.message.role === 'user';
   }
 
+  get isError(): boolean {
+    return !!this.message.isError;
+  }
+
   get taskIcon(): string {
     const icons: Record<string, string> = {
       model_generation: '✦',
