@@ -25,7 +25,7 @@ COPY --from=builder /app/dist/UBP-Tutor-Frontend/browser /usr/share/nginx/html
 ENV API_URL=/api
 ENV KEYCLOAK_URL=http://localhost:8080
 ENV KEYCLOAK_REALM=ubp-tutor
-ENV KEYCLOAK_CLIENT_ID=ubp-tutor-frontend
+ENV KEYCLOAK_CLIENT_ID=ubp-frontend
 ENV USE_MOCK_AUTH=false
 
 EXPOSE 80

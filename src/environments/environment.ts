@@ -9,6 +9,6 @@ export const environment = {
       (typeof window !== 'undefined' && (window as any).__env?.KEYCLOAK_REALM) || 'ubp-tutor',
     clientId:
       (typeof window !== 'undefined' && (window as any).__env?.KEYCLOAK_CLIENT_ID) ||
-      'ubp-tutor-frontend',
+      'ubp-frontend',
   },
 };

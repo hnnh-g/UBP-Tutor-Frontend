@@ -18,11 +18,11 @@ export const en = {
         title: 'Model Generation',
         description: 'Generate UML, BPMN, and Petri net diagrams from natural language descriptions.',
       },
-      questions: {
+      question: {
         title: 'Modeling Explanations',
         description: 'Get clear explanations of complex modeling concepts and diagrams.',
       },
-      evaluation: {
+      model_evaluation: {
         title: 'Model Evaluation',
         description: 'Evaluate your diagrams for correctness, completeness, and best practices.',
       },

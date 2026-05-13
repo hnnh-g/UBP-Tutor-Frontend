@@ -20,11 +20,11 @@ export const de: Translations = {
         title: 'Modellerstellung',
         description: 'Erstellen Sie UML-, BPMN- und Petri-Netz-Diagramme aus natürlichsprachlichen Beschreibungen.',
       },
-      questions: {
+      question: {
         title: 'Erklärung von Modellierungskonzepten',
         description: 'Erhalten Sie klare Erklärungen komplexer Modellierungskonzepte und -diagramme.',
       },
-      evaluation: {
+      model_evaluation: {
         title: 'Modellbewertung',
         description: 'Lassen Sie Ihre Diagramme auf Korrektheit, Vollständigkeit und Best Practices prüfen.',
       },
