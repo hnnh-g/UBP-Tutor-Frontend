@@ -49,7 +49,6 @@ export class PreferencesService {
 
   private applyPreferences(prefs: UserPreferences): void {
     this.translation.setLanguage(prefs.language);
-    this.uiState.sidebarOpen.set(prefs.sidebarOpen);
     this.uiState.setTaskType(prefs.defaultTaskType);
   }
 }
