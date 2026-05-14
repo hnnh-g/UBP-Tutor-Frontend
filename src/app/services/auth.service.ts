@@ -1,13 +1,11 @@
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { User, Role } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private platformId = inject(PLATFORM_ID);
-  private router = inject(Router);
 
   private keycloak: any = null;
 
@@ -31,11 +29,13 @@ export class AuthService {
         clientId: environment.keycloak.clientId,
       });
 
-      const authenticated = await this.keycloak.init({
+      const keycloakInit = this.keycloak.init({
         onLoad: 'check-sso',
         silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html',
         pkceMethod: 'S256',
       });
+      const timeout = new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 8000));
+      const authenticated = await Promise.race([keycloakInit, timeout]);
 
       this.isAuthenticated.set(authenticated);
 

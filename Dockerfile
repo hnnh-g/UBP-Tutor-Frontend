@@ -21,13 +21,16 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy built Angular app (SPA output, not SSR)
 COPY --from=builder /app/dist/UBP-Tutor-Frontend/browser /usr/share/nginx/html
 
+# Copy entrypoint that writes config.js from env vars at container start
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
 # Default env vars (overridable at container run time)
 ENV API_URL=/api
 ENV KEYCLOAK_URL=http://localhost:8080
 ENV KEYCLOAK_REALM=ubp-tutor
 ENV KEYCLOAK_CLIENT_ID=ubp-frontend
-ENV USE_MOCK_AUTH=false
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
