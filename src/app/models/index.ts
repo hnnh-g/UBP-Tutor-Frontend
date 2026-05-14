@@ -2,7 +2,7 @@ export type Role = 'STUDENT' | 'TEACHER' | 'ADMIN';
 export type Language = 'de' | 'en';
 export type TaskType = 'model_generation' | 'model_evaluation' | 'question' | 'summary' | 'question_generation';
 export type DiagramType = 'uml' | 'bpmn' | 'petri-net';
-export type SystemStatus = 'ready' | 'generating' | 'error';
+export type SystemStatus = 'ready' | 'something_is_wrong' | 'error';
 export type SnackbarType = 'success' | 'error' | 'warning' | 'info';
 
 export interface User {

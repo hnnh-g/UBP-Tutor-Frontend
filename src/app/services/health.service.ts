@@ -30,7 +30,7 @@ export class HealthService implements OnDestroy {
   private mapStatus(backendStatus: string): SystemStatus {
     switch (backendStatus) {
       case 'healthy': return 'ready';
-      case 'degraded': return 'generating';
+      case 'degraded': return 'something_is_wrong';
       default: return 'error';
     }
   }

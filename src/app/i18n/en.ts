@@ -160,7 +160,7 @@ export const en = {
   },
   status: {
     ready: 'Ready',
-    generating: 'Generating...',
+    something_is_wrong: 'One component fails...',
     error: 'Error',
   },
   language: {

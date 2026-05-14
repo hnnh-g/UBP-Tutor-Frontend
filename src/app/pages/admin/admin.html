@@ -58,7 +58,7 @@
             </div>
             <p class="text-2xl font-bold capitalize"
               [class.text-green-600]="health.status() === 'ready'"
-              [class.text-amber-500]="health.status() === 'generating'"
+              [class.text-amber-500]="health.status() === 'something_is_wrong'"
               [class.text-red-600]="health.status() === 'error'"
             >
               {{ translation.t().status[health.status()] }}

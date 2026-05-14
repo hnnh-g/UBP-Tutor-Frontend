@@ -17,7 +17,7 @@ export class StatusIndicatorComponent {
   get dotClass(): string {
     const s = this.health.status();
     if (s === 'ready') return 'bg-green-500';
-    if (s === 'generating') return 'bg-amber-400 animate-pulse';
+    if (s === 'something_is_wrong') return 'bg-amber-400 animate-pulse';
     return 'bg-red-500';
   }
 
@@ -25,7 +25,7 @@ export class StatusIndicatorComponent {
     const t = this.translation.t().status;
     const s = this.health.status();
     if (s === 'ready') return t.ready;
-    if (s === 'generating') return t.generating;
+    if (s === 'something_is_wrong') return t.something_is_wrong;
     return t.error;
   }
 }

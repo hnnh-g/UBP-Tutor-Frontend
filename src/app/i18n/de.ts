@@ -162,7 +162,7 @@ export const de: Translations = {
   },
   status: {
     ready: 'Bereit',
-    generating: 'Generierung läuft...',
+    something_is_wrong: 'Eine Komponente ist fehlerhaft',
     error: 'Fehler',
   },
   language: {
