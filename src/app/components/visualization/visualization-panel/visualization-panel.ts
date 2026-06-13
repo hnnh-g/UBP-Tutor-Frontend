@@ -64,6 +64,7 @@ export class VisualizationPanelComponent implements OnDestroy {
       if (diagram) {
         this.uiState.expandVisualization();
         if (diagram.type === 'uml') this.panelHeight.set(400);
+        if (diagram.type === 'bpmn') this.panelHeight.set(400);
         if (diagram.type === 'petri-net') this.panelHeight.set(400);
       }
       if (diagram?.type === 'bpmn') {
