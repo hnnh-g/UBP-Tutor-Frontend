@@ -177,19 +177,10 @@
                     </div>
                   </div>
                 }
-                @if (componentEntries().length === 0) {
-                  <p class="text-sm text-slate-400">{{ translation.t().admin.noComponentData }}</p>
-                }
               </div>
 
-              <!-- Active model + streaming -->
+              <!-- streaming -->
               <div class="space-y-2 pt-4 border-t border-slate-100">
-                <div class="flex items-center justify-between text-sm">
-                  <span class="text-slate-500">{{ translation.t().admin.activeModel }}</span>
-                  <span class="font-medium text-slate-700 truncate max-w-40" [title]="statusSvc.data()?.active_model ?? ''">
-                    {{ statusSvc.data()?.active_model ?? '—' }}
-                  </span>
-                </div>
                 <div class="flex items-center justify-between text-sm">
                   <span class="text-slate-500">{{ translation.t().admin.streaming }}</span>
                   <div class="flex items-center gap-1.5">

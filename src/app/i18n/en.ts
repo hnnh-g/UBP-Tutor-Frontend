@@ -151,7 +151,6 @@ export const en = {
     totalUsers: 'Total Users',
     activeSessions: 'Active Sessions',
     activeRequests: 'Active Requests',
-    activeModel: 'Active Model',
     streaming: 'Streaming',
     active: 'Active',
     inactive: 'Inactive',

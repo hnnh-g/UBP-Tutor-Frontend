@@ -32,6 +32,7 @@ export class VisualizationPanelComponent implements OnDestroy {
     }
   }
   private petriViewer?: cytoscape.Core;
+  private petriResizeObserver?: ResizeObserver;
 
   private _canvasRef?: ElementRef<HTMLDivElement>;
   @ViewChild('canvas', {static: false})
@@ -149,11 +150,9 @@ export class VisualizationPanelComponent implements OnDestroy {
       const { inner } = canvas.viewbox();
       const containerWidth = this._canvasRef.nativeElement.offsetWidth;
       // Height the diagram needs at full width (never zoom in beyond 100%),
-      // plus header (~41px) and content padding (32px).
       const scale = Math.min(1, containerWidth / inner.width);
-      const natural = Math.round(inner.height * scale) + 41 + 32 + 16;
-      const maxHeight = Math.round(window.innerHeight * 0.6);
-      this.panelHeight.set(Math.min(maxHeight, Math.max(400, natural)));
+      const natural = Math.round(inner.height * scale) + 41 + 32 + 40;
+      this.panelHeight.set(Math.max(350, natural));
     } catch (err) {
       console.error('BPMN render error', err);
     } finally {
@@ -241,11 +240,21 @@ export class VisualizationPanelComponent implements OnDestroy {
 
   this.petriViewer.fit(undefined, 20);
 
+  // Re-fit when the panel is resized (e.g. shrunk to the available space).
+  this.petriResizeObserver?.disconnect();
+  this.petriResizeObserver = new ResizeObserver(() => {
+    this.petriViewer?.resize();
+    this.petriViewer?.fit(undefined, 20);
+  });
+  this.petriResizeObserver.observe(this._petriCanvasRef.nativeElement);
+
   const bb = this.petriViewer.elements().boundingBox({});
   if (bb.w > 0 && bb.h > 0) {
     const containerWidth = this._petriCanvasRef.nativeElement.offsetWidth;
-    const natural = Math.round(containerWidth * (bb.h / bb.w));
-    this.panelHeight.set(Math.min(800, Math.max(350, natural)));
+    // bb is in model coordinates (zoom 1); never size for more than 100% zoom.
+    const scale = Math.min(1, containerWidth / bb.w);
+    const natural = Math.round(bb.h * scale) + 41 + 32 + 40;
+    this.panelHeight.set(Math.max(350, natural));
   }
 }
 
@@ -255,6 +264,8 @@ export class VisualizationPanelComponent implements OnDestroy {
     this.bpmnResizeObserver = undefined;
     this.viewer?.destroy();
     this.viewer = undefined;
+    this.petriResizeObserver?.disconnect();
+    this.petriResizeObserver = undefined;
     this.petriViewer?.destroy();
     this.petriViewer = undefined;
   }
@@ -313,7 +324,7 @@ export class VisualizationPanelComponent implements OnDestroy {
         height = img.offsetHeight;
       }
       if (height > 0) {
-        this.panelHeight.set(Math.min(800, Math.max(200, height + 82)));
+        this.panelHeight.set(Math.max(200, height + 82));
       }
     }, 0);
   }

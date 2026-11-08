@@ -1,6 +1,11 @@
 // Styles handled via Tailwind
 :host {
-    display: block;
+  // Grow to the diagram's natural height, but shrink (messages first, since
+  // they are flex-1) when that would exceed the space in the chat column.
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 auto;
+  min-height: 0;
 }
 
 :host ::ng-deep .bjs-container,

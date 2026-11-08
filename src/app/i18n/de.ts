@@ -153,7 +153,6 @@ export const de: Translations = {
     totalUsers: 'Gesamtnutzer',
     activeSessions: 'Aktive Sitzungen',
     activeRequests: 'Aktive Anfragen',
-    activeModel: 'Aktives Modell',
     streaming: 'Streaming',
     active: 'Aktiv',
     inactive: 'Inaktiv',
