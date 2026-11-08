@@ -3,7 +3,7 @@ import { ChatService } from '../../../services/chat.service';
 import { TranslationService } from '../../../services/translation.service';
 import { UIStateService } from '../../../services/ui-state.service';
 import { CommonModule } from '@angular/common';
-import BpmnViewer from 'bpmn-js/lib/Viewer';
+import BpmnViewer from 'bpmn-js/lib/NavigatedViewer';
 import { layoutProcess } from 'bpmn-auto-layout';
 import { encode } from 'plantuml-encoder';
 import cytoscape from 'cytoscape';
@@ -45,6 +45,7 @@ export class VisualizationPanelComponent implements OnDestroy {
     }
   }
   private viewer?: BpmnViewer;
+  private bpmnResizeObserver?: ResizeObserver;
   private readonly plantumlServer = 'http://localhost:8081';
 
   protected plantUmlUrl = computed(() => {
@@ -73,6 +74,8 @@ export class VisualizationPanelComponent implements OnDestroy {
         this.petriViewer = undefined;
         if (this._canvasRef) setTimeout(() => this.renderBpmn(diagram.content), 0);
       } else if (diagram?.type === 'petri-net') {
+        this.bpmnResizeObserver?.disconnect();
+        this.bpmnResizeObserver = undefined;
         this.viewer?.destroy();
         this.viewer = undefined;
         if (this._petriCanvasRef) setTimeout(() => this.renderPetriNet(diagram.content), 0);
@@ -117,6 +120,11 @@ export class VisualizationPanelComponent implements OnDestroy {
     }
     if (!this.viewer) {
       this.viewer = new BpmnViewer({container: this._canvasRef.nativeElement});
+      // Re-fit whenever the panel changes size (height animation, window resize,
+      // sidebar/help toggle) - otherwise the zoom stays tuned to the old size.
+      this.bpmnResizeObserver?.disconnect();
+      this.bpmnResizeObserver = new ResizeObserver(() => this.fitBpmn());
+      this.bpmnResizeObserver.observe(this._canvasRef.nativeElement);
     }
     this.isRendering.set(true);
     try {
@@ -137,15 +145,32 @@ export class VisualizationPanelComponent implements OnDestroy {
       }
       await this.viewer.importXML(ready);
       const canvas = this.viewer.get('canvas') as any;
-      canvas.zoom('fit-viewport');
+      canvas.zoom('fit-viewport', 'auto');
       const { inner } = canvas.viewbox();
       const containerWidth = this._canvasRef.nativeElement.offsetWidth;
-      const natural = Math.round(containerWidth * (inner.height / inner.width));
-      this.panelHeight.set(Math.min(600, Math.max(200, natural)));
+      // Height the diagram needs at full width (never zoom in beyond 100%),
+      // plus header (~41px) and content padding (32px).
+      const scale = Math.min(1, containerWidth / inner.width);
+      const natural = Math.round(inner.height * scale) + 41 + 32 + 16;
+      const maxHeight = Math.round(window.innerHeight * 0.6);
+      this.panelHeight.set(Math.min(maxHeight, Math.max(400, natural)));
     } catch (err) {
       console.error('BPMN render error', err);
     } finally {
       this.isRendering.set(false);
+    }
+  }
+
+  private fitBpmn(): void {
+    if (!this.viewer || !this._canvasRef?.nativeElement.offsetHeight) return;
+    try {
+      const canvas = this.viewer.get('canvas') as any;
+      canvas.resized();
+      canvas.zoom('fit-viewport', 'auto');
+      // Don't blow small diagrams up beyond their natural size.
+      if (canvas.zoom() > 1) canvas.zoom(1, 'auto');
+    } catch {
+      // viewer not ready / no diagram imported yet
     }
   }
 
@@ -226,6 +251,8 @@ export class VisualizationPanelComponent implements OnDestroy {
 
 
   private destroyViewer(): void {
+    this.bpmnResizeObserver?.disconnect();
+    this.bpmnResizeObserver = undefined;
     this.viewer?.destroy();
     this.viewer = undefined;
     this.petriViewer?.destroy();

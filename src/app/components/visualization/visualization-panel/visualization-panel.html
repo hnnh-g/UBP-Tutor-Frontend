@@ -1,10 +1,10 @@
 @if (chat.currentDiagram(); as diagram) {
   <div
-    class="border-t border-slate-200 bg-slate-50 transition-all duration-300 overflow-hidden"
+    class="flex flex-col border-t border-slate-200 bg-slate-50 transition-all duration-300 overflow-hidden"
     [style.height.px]="uiState.visualizationExpanded() ? panelHeight() : 48"
   >
     <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-2 border-b border-slate-200 bg-white">
+    <div class="flex flex-shrink-0 items-center justify-between px-4 py-2 border-b border-slate-200 bg-white">
       <div class="flex items-center gap-2">
         <span class="text-base">{{ diagramIcon }}</span>
         <span class="text-sm font-medium text-slate-700">{{ diagramTypeLabel }}</span>
@@ -62,7 +62,7 @@
     </div>
 
     <!-- Diagram Content -->
-    <div class="h-full overflow-hidden p-4">
+    <div class="flex-1 min-h-0 overflow-hidden p-4">
         @if (diagram.type === 'uml') {
           @if (plantUmlUrl(); as url) {
             <div #umlWrap class="h-full w-full flex items-center justify-center bg-white rounded-lg">
@@ -76,7 +76,7 @@
             </div>
           }
         } @else if (diagram.type === 'bpmn') {
-          <div #canvas class="w-full h-full"></div>
+          <div #canvas class="w-full h-full bg-white rounded-lg"></div>
         } @else {
           <!-- Petri Net -->
           <div #petriCanvas class="w-full h-full"></div>
