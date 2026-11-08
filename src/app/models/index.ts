@@ -1,6 +1,6 @@
 export type Role = 'STUDENT' | 'TEACHER' | 'ADMIN';
 export type Language = 'de' | 'en';
-export type TaskType = 'model_generation' | 'model_evaluation' | 'question' | 'summary' | 'question_generation';
+export type TaskType = 'model_generation' | 'model_evaluation' | 'question' | 'summary' | 'question_generation' | 'answer_evaluation';
 export type DiagramType = 'uml' | 'bpmn' | 'petri-net';
 export type SystemStatus = 'ready' | 'something_is_wrong' | 'error';
 export type SnackbarType = 'success' | 'error' | 'warning' | 'info';
@@ -169,6 +169,15 @@ export const TASK_TYPE_OPTIONS: TaskTypeOption[] = [
       'Create exam questions for Petri nets.',
     ],
   },
+  {
+    value: 'answer_evaluation',
+    labelKey: 'taskType.answer_evaluation',
+    icon: '✪',
+    placeholders: [
+      'Evaluate the answer for correctness and completeness.',
+      'Provide feedback on the answer and suggest improvements.',
+    ],
+  }
 ];
 
 export const ACCEPTED_FILE_TYPES = ['.bpmn', '.xml', '.puml', '.pnml'];
@@ -180,6 +189,7 @@ export const EXPLANATION_KEYWORDS = ['explain', 'what is', 'describe', 'show me'
 export const SUMMARY_KEYWORDS = ['summary', 'zusammenfassungen']
 export const QUESTION_GENERATION = ['questions', 'fragen', 'nutzerantwort', 'user query', 'multiple choice', 'single choice'];
 export const EVALUATION_KEYWORDS = ['evaluate', 'check', 'review', 'validate', 'assess', 'bewerte', 'prüfe', 'überprüfe'];
+export const ANSWER_EVALUATION_KEYWORDS = ['feedback', 'bewerte die antwort', 'evaluate the answer', 'give feedback', 'gib feedback'];
 
 export function detectTaskType(text: string): TaskType | null {
   const lower = text.toLowerCase();
@@ -188,5 +198,6 @@ export function detectTaskType(text: string): TaskType | null {
   if (SUMMARY_KEYWORDS.some((k) => lower.includes(k))) return 'summary';
   if (QUESTION_GENERATION.some((k) => lower.includes(k))) return 'question_generation';
   if (EVALUATION_KEYWORDS.some((k) => lower.includes(k))) return 'model_evaluation';
+  if (ANSWER_EVALUATION_KEYWORDS.some((k) => lower.includes(k))) return 'answer_evaluation';
   return null;
 }

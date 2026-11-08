@@ -73,6 +73,10 @@ export const de: Translations = {
         'Erstelle 3 Single-Choice- und 3 Multiple-Choice-Fragen zu UML.',
         'Erstelle Prüfungsfragen für Petri-Netze.',
       ],
+      answer_evaluation: [
+        'Bewerte die Antwort auf Richtigkeit und Vollständigkeit.',
+        'Gib Feedback zur Antwort und schlage Verbesserungen vor.',
+      ]
     },
   },
   taskType: {
@@ -81,6 +85,7 @@ export const de: Translations = {
     question: 'Frage',
     summary: 'Zusammenfassungen',
     question_generation: 'Fragen-Erstellung',
+    answer_evaluation: 'Antwortevaluation',
     label: 'Aufgabentyp',
   },
   settings: {
@@ -108,12 +113,13 @@ export const de: Translations = {
       fileUpload: 'Datei-Upload',
     },
     taskTypes: {
-      description: 'Der Tutor unterstützt 5 Aufgabentypen:',
+      description: 'Der Tutor unterstützt 6 Aufgabentypen:',
       model_generation: 'Erstellen Sie ein neues Diagramm aus einer Textbeschreibung.',
       model_evaluation: 'Lassen Sie Ihr Diagramm auf Korrektheit prüfen.',
       question: 'Stellen Sie eine beliebige Frage zur Modellierung.',
       summary: 'Lassen Sie sich Zusammenfassungen zu bestimmten Themen erstellen.',
       question_generation: 'Lassen Sie sich Prüfungsfragen in folgenden Formaten erstellen (Multiple Choice, Single Choice oder offene Fragen)',
+      answer_evaluation: 'Lassen Sie Ihre Antworten auf Modellierungsaufgaben bewerten und erhalten Sie Feedback.',
     },
     uml: {
       description:

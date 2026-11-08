@@ -4,6 +4,7 @@ import { TranslationService } from '../../../services/translation.service';
 import { UIStateService } from '../../../services/ui-state.service';
 import { CommonModule } from '@angular/common';
 import BpmnViewer from 'bpmn-js/lib/Viewer';
+import { layoutProcess } from 'bpmn-auto-layout';
 import { encode } from 'plantuml-encoder';
 import cytoscape from 'cytoscape';
 
@@ -119,7 +120,22 @@ export class VisualizationPanelComponent implements OnDestroy {
     }
     this.isRendering.set(true);
     try {
-      await this.viewer.importXML(this.preprocessBpmnXml(xml));
+      let ready = this.preprocessBpmnXml(xml);
+      // The fine-tuned model emits BPMN with no <bpmndi:BPMNDiagram> section -
+      // 0 of its 74 BPMN training examples contain one - and BpmnViewer only
+      // draws shapes at DI coordinates, so without DI the panel stays blank.
+      // Generating the layout here is deterministic; the coordinates the model
+      // invents when asked for DI are overlapping and frequently wrong.
+      if (!/BPMNDiagram/.test(ready)) {
+        try {
+          ready = await layoutProcess(ready);
+        } catch (layoutErr) {
+          // Pools/collaborations are only partly supported by bpmn-auto-layout;
+          // fall through so bpmn-js reports the underlying problem itself.
+          console.error('BPMN auto-layout failed', layoutErr);
+        }
+      }
+      await this.viewer.importXML(ready);
       const canvas = this.viewer.get('canvas') as any;
       canvas.zoom('fit-viewport');
       const { inner } = canvas.viewbox();

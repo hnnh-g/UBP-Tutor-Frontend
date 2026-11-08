@@ -28,6 +28,7 @@ export class MessageBubbleComponent {
       question_generation: '∆',
       model_evaluation: '◎',
       question: '○',
+      answer_evaluation: '✪',
     };
     return this.message.taskType ? (icons[this.message.taskType] ?? '○') : '○';
   }

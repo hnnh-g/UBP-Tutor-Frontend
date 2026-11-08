@@ -71,6 +71,10 @@ export const en = {
         'Create 3 single choice and 3 multiple choice questions related to UML.',
         'Create exam questions for Petri nets.',
       ],
+      answer_evaluation: [
+        'Evaluate the answer for correctness and completeness.',
+        'Provide feedback on the answer and suggest improvements.',
+      ]
     },
   },
   taskType: {
@@ -79,6 +83,7 @@ export const en = {
     question: 'Question',
     summary: 'Summary',
     question_generation: 'Question Generation',
+    answer_evaluation: 'Answer Evaluation',
     label: 'Task type',
   },
   settings: {
@@ -106,12 +111,13 @@ export const en = {
       fileUpload: 'File Upload',
     },
     taskTypes: {
-      description: 'The tutor supports four task types:',
+      description: 'The tutor supports 6 task types:',
       model_generation: 'Generate a new diagram from a text description.',
       model_evaluation: 'Have your diagram evaluated for correctness.',
       question: 'Ask any modeling-related question.',
       summary: 'Let the tutor generate a summary about a specific topic.',
-      question_generation: 'Let the tutor generate exam questions (e.g., multiple choice, single choice, open questions).'
+      question_generation: 'Let the tutor generate exam questions (e.g., multiple choice, single choice, open questions).',
+      answer_evaluation: 'Have your answers evaluated and receive feedback.'
     },
     uml: {
       description:
