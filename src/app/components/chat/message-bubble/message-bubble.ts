@@ -44,15 +44,25 @@ export class MessageBubbleComponent {
     const escapeHtml = (s: string) =>
       s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+    const codeBlock = (code: string) =>
+      `<pre class="bg-slate-900 text-slate-100 p-3 rounded-lg my-2 overflow-y-auto max-h-80 text-sm font-mono whitespace-pre-wrap break-all"><code>${escapeHtml(code)}</code></pre>`;
+
+    // Unfenced diagram source (e.g. BPMN / PNML XML or PlantUML pasted for evaluation)
+    if (!content.includes('```')) {
+      const fence = (m: string) => '```\n' + m + '\n```';
+      content = /^@startuml/m.test(content)
+        ? content.replace(/^@startuml[\s\S]*?(^@enduml[^\n]*$|$(?![\s\S]))/m, fence)
+        : content.replace(/^[ \t]*<(?:\?xml|[\w:-]+[\s>/])[\s\S]*>[ \t]*$/m, fence);
+    }
+
     // Split on fenced code blocks so newlines and HTML chars inside them are preserved
     return content
       .split(/(```[\w]*\n?[\s\S]+?```)/g)
       .map((part, i) => {
         if (i % 2 === 1) {
-          const code = part.replace(/^```[\w]*\n?/, '').replace(/```$/, '');
-          return `<pre class="bg-slate-900 text-slate-100 p-3 rounded-lg my-2 overflow-x-auto text-sm font-mono whitespace-pre-wrap"><code>${escapeHtml(code)}</code></pre>`;
+          return codeBlock(part.replace(/^```[\w]*\n?/, '').replace(/```$/, ''));
         }
-        return part
+        return escapeHtml(part)
           .replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>')
           .replace(/\*([\s\S]+?)\*/g, '<em>$1</em>')
           .replace(/`([^`]+)`/g, '<code class="bg-slate-100 text-slate-800 px-1 py-0.5 rounded text-sm font-mono">$1</code>')
